@@ -1,61 +1,103 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&display=swap');
+
+/* Базовая единица — --cell-w (ширина ячейки) в vw.
+   Всё остальное выражено в её долях. Чтобы пропорционально
+   увеличить/уменьшить интерфейс, меняйте только --cell-w.
+   Соотношения: высота = 2.2 × ширина, шрифт = 1.76 × ширина. */
+:root {
+  --cell-w: 2.5vw;
+  --cell-h: 5.5vw;
+  --cell-fs: 4.4vw;
+  --cell-mx: 0.11vw;
+
+  --board-pad-v: 0.55vw;
+  --board-pad-h: 2.5vw;
+
+  --header-fs: 2.8vw;
+  --colhead-fs: 1.7vw;
+  --colhead-pad: 0.45vw;
+
+  --row-gap: 0.22vw;
+  --col-gap: 2.25vw;
+
+  --cell-total-w: calc(var(--cell-w) + 2 * var(--cell-mx));
+
+  --time-w:   calc(5  * var(--cell-total-w));
+  --group-w:  calc(6  * var(--cell-total-w));
+  --room-w:   calc(14 * var(--cell-total-w));
+  --status-w: calc(5  * var(--cell-total-w));
+}
+
+* {
+  box-sizing: border-box;
+}
 
 body, html {
   margin: 0;
   padding: 0;
-  background-color: #0a0a0a;
-  color: #ffcc00;
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
-  font-variant-numeric: tabular-nums;
+  background-color: #050505;
+  color: #e8e8e8;
+  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   height: 100vh;
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 .board {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  padding: 15px;
-  box-sizing: border-box;
+  padding: var(--board-pad-v) var(--board-pad-h);
+  background: #050505;
 }
 
 .header {
   text-align: center;
-  font-size: 4rem;
-  margin-bottom: 10px;
-  color: #ffcc00;
-  border-bottom: 2px solid #333;
-  padding-bottom: 5px;
-  text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+  font-size: var(--header-fs);
+  font-weight: 700;
+  margin-bottom: 0.4vw;
+  padding: 0.3vw 0 0.5vw;
+  color: #f5f5f5;
+  border-bottom: 1px solid #2a2a2a;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+  line-height: 1;
 }
 
 .board-header {
   display: flex;
-  background-color: #000000;
-  color: #ffffff;
-  font-size: 1.5rem;
-  padding: 8px 0;
-  border-radius: 4px 4px 0 0;
+  background: #1a1a1a;
+  border-top: 2px solid #8b1a1a;
+  border-bottom: 1px solid #2a2a2a;
+  font-size: var(--colhead-fs);
+  font-weight: 700;
   text-transform: uppercase;
-  border-bottom: 2px solid #333;
+  letter-spacing: 0.08em;
+  padding: var(--colhead-pad) 0;
+  color: #d0d0d0;
+  line-height: 1;
+  gap: var(--col-gap);
+  justify-content: center;
 }
 
 .board-body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding-top: 10px;
-  perspective: 800px;
+  gap: var(--row-gap);
+  padding-top: 0.4vw;
+  perspective: 1200px;
   perspective-origin: center center;
 }
 
 .row {
   display: flex;
-  font-size: 2.2rem;
-  padding: 6px 0;
-  border-bottom: 1px solid #222;
-  text-shadow: 0 0 5px rgba(255, 204, 0, 0.3);
+  font-size: var(--cell-fs);
+  line-height: 1;
+  padding: 0;
+  gap: var(--col-gap);
+  justify-content: center;
   transform-origin: center center;
   transform-style: preserve-3d;
   backface-visibility: hidden;
@@ -78,9 +120,41 @@ body, html {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 0;
+  gap: 0;
+  flex: 0 0 auto;
 }
 
-.time-col { flex: 1; }
-.group-col { flex: 1; }
-.room-col { flex: 2; }
-.status-col { flex: 1; color: #00ff00; text-shadow: 0 0 5px rgba(0, 255, 0, 0.5); }
+.time-col   { width: var(--time-w); }
+.group-col  { width: var(--group-w); }
+.room-col   { width: var(--room-w); }
+.status-col { width: var(--status-w); }
+
+.cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--cell-w);
+  height: var(--cell-h);
+  background: #1a1a1a;
+  margin: 0 var(--cell-mx);
+  border-radius: 1px;
+  font-weight: 600;
+  font-size: var(--cell-fs);
+  color: #e8e8e8;
+  text-transform: uppercase;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.15);
+  user-select: none;
+  line-height: 1;
+}
+
+.cell.empty {
+  background: #0f0f0f;
+  color: transparent;
+  text-shadow: none;
+}
+
+.status-col .cell:not(.empty) {
+  color: #ffb400;
+  text-shadow: 0 0 6px rgba(255, 180, 0, 0.45);
+}

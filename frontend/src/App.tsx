@@ -14,6 +14,11 @@ const FLIP_INTERVAL_MS = 10000;
 const FLIP_DURATION_MS = 600;
 const FLIP_STAGGER_MS = 120;
 
+const TIME_LEN = 5;
+const GROUP_LEN = 6;
+const ROOM_LEN = 14;
+const STATUS_LEN = 5;
+
 const getInitialTime = (): Date => {
   const params = new URLSearchParams(window.location.search);
   const mock = params.get('mockTime');
@@ -26,6 +31,25 @@ const getInitialTime = (): Date => {
   return new Date();
 };
 
+function CharCells({ text, length, forceEmpty }: { text: string; length: number; forceEmpty?: boolean }) {
+  const padded = forceEmpty
+    ? ' '.repeat(length)
+    : text.padEnd(length, ' ').slice(0, length);
+
+  return (
+    <>
+      {padded.split('').map((ch, i) => {
+        const isEmpty = ch === ' ';
+        return (
+          <span key={i} className={`cell ${isEmpty ? 'empty' : ''}`}>
+            {isEmpty ? '\u00A0' : ch}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
 function App() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [currentTime, setCurrentTime] = useState<Date>(getInitialTime);
@@ -35,13 +59,11 @@ function App() {
     new URLSearchParams(window.location.search).has('mockTime')
   );
 
-  // Обязательный переворот сразу при монтировании.
   useEffect(() => {
     const initTimer = setTimeout(() => setFlipTrigger(t => t + 1), 50);
     return () => clearTimeout(initTimer);
   }, []);
 
-  // Переворот при возврате фокуса на вкладку.
   useEffect(() => {
     const onVisible = () => {
       if (document.visibilityState === 'visible') {
@@ -52,7 +74,6 @@ function App() {
     return () => document.removeEventListener('visibilitychange', onVisible);
   }, []);
 
-  // Часы. Триггер переворота — секунды, кратные 10.
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(prev => {
@@ -66,7 +87,6 @@ function App() {
     return () => clearInterval(timer);
   }, [isMocked]);
 
-  // Данные с сервера. Обновляются в фоне, не влияя на отображение напрямую.
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -82,7 +102,6 @@ function App() {
     return () => clearInterval(fetchTimer);
   }, []);
 
-  // Снимок данных — пересчитывается при перевороте или появлении новых данных.
   const [snapshotTime, setSnapshotTime] = useState<Date>(currentTime);
   const [snapshotLessons, setSnapshotLessons] = useState<Lesson[]>([]);
   const lessonsRef = useRef<Lesson[]>(lessons);
@@ -155,11 +174,17 @@ interface FlipRowProps {
 function FlipRow({ lesson, currentTime, flipTrigger, index }: FlipRowProps) {
   const [flipping, setFlipping] = useState(false);
   const [visibleLesson, setVisibleLesson] = useState<Lesson | null>(lesson);
+  const [visibleTime, setVisibleTime] = useState<Date>(currentTime);
   const lessonRef = useRef(lesson);
+  const timeRef = useRef(currentTime);
 
   useEffect(() => {
     lessonRef.current = lesson;
   }, [lesson]);
+
+  useEffect(() => {
+    timeRef.current = currentTime;
+  }, [currentTime]);
 
   useEffect(() => {
     if (flipTrigger === 0) return;
@@ -167,7 +192,10 @@ function FlipRow({ lesson, currentTime, flipTrigger, index }: FlipRowProps) {
     const half = FLIP_DURATION_MS / 2;
 
     const startTimer = setTimeout(() => setFlipping(true), delay);
-    const swapTimer = setTimeout(() => setVisibleLesson(lessonRef.current), delay + half);
+    const swapTimer = setTimeout(() => {
+      setVisibleLesson(lessonRef.current);
+      setVisibleTime(timeRef.current);
+    }, delay + half);
     const endTimer = setTimeout(() => setFlipping(false), delay + FLIP_DURATION_MS);
 
     return () => {
@@ -180,26 +208,35 @@ function FlipRow({ lesson, currentTime, flipTrigger, index }: FlipRowProps) {
   if (visibleLesson === null) {
     return (
       <div className={`row ${flipping ? 'flipping' : ''}`}>
-        <div className="col time-col">&nbsp;</div>
-        <div className="col group-col">&nbsp;</div>
-        <div className="col room-col">&nbsp;</div>
-        <div className="col status-col">&nbsp;</div>
+        <div className="col time-col"><CharCells text="" length={TIME_LEN} forceEmpty /></div>
+        <div className="col group-col"><CharCells text="" length={GROUP_LEN} forceEmpty /></div>
+        <div className="col room-col"><CharCells text="" length={ROOM_LEN} forceEmpty /></div>
+        <div className="col status-col"><CharCells text="" length={STATUS_LEN} forceEmpty /></div>
       </div>
     );
   }
 
   const start = new Date(visibleLesson.start_time);
   const end = new Date(start.getTime() + 80 * 60000);
-  const isOngoing = currentTime >= start && currentTime <= end;
+  const isOngoing = visibleTime >= start && visibleTime <= end;
 
   return (
     <div className={`row ${flipping ? 'flipping' : ''}`}>
       <div className="col time-col">
-        {start.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+        <CharCells
+          text={start.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+          length={TIME_LEN}
+        />
       </div>
-      <div className="col group-col">{visibleLesson.group}</div>
-      <div className="col room-col">{visibleLesson.room}</div>
-      <div className="col status-col">{isOngoing ? 'ИДЕТ' : ''}</div>
+      <div className="col group-col">
+        <CharCells text={visibleLesson.group} length={GROUP_LEN} />
+      </div>
+      <div className="col room-col">
+        <CharCells text={visibleLesson.room} length={ROOM_LEN} />
+      </div>
+      <div className="col status-col">
+        <CharCells text={isOngoing ? 'ИДЕТ' : ''} length={STATUS_LEN} />
+      </div>
     </div>
   );
 }
