@@ -1,9 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&display=swap');
 
-/* Базовая единица — --cell-w (ширина ячейки) в vw.
-   Всё остальное выражено в её долях. Чтобы пропорционально
-   увеличить/уменьшить интерфейс, меняйте только --cell-w.
-   Соотношения: высота = 2.2 × ширина, шрифт = 1.76 × ширина. */
 :root {
   --cell-w: 2.5vw;
   --cell-h: 5.5vw;
@@ -87,8 +83,6 @@ body, html {
   flex-direction: column;
   gap: var(--row-gap);
   padding-top: 0.4vw;
-  perspective: 1200px;
-  perspective-origin: center center;
 }
 
 .row {
@@ -98,22 +92,7 @@ body, html {
   padding: 0;
   gap: var(--col-gap);
   justify-content: center;
-  transform-origin: center center;
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-  will-change: transform;
-}
-
-.row.flipping {
-  animation: flipRow 0.6s cubic-bezier(0.5, 0, 0.5, 1);
-}
-
-@keyframes flipRow {
-  0%   { transform: rotateX(0deg); }
-  49%  { transform: rotateX(88deg); }
-  50%  { transform: rotateX(90deg); }
-  51%  { transform: rotateX(-88deg); }
-  100% { transform: rotateX(0deg); }
+  perspective: 800px; /* Усиленная перспектива для 3D */
 }
 
 .col {
@@ -136,25 +115,96 @@ body, html {
   justify-content: center;
   width: var(--cell-w);
   height: var(--cell-h);
-  background: #1a1a1a;
   margin: 0 var(--cell-mx);
-  border-radius: 1px;
+  
+  /* Пластиковая основа */
+  background: #222222;
+  border: 1px solid #111;
+  border-top: 1px solid #555; /* Светлый верхний край */
+  border-bottom: 2px solid #050505; /* Тёмный нижний край для объема */
+  border-radius: 2px;
+  
+  /* Тени: внешняя отбрасываемая + внутренняя сверху + внутренняя снизу */
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.6),
+    inset 0 2px 3px rgba(255, 255, 255, 0.1),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.8);
+    
   font-weight: 600;
   font-size: var(--cell-fs);
   color: #e8e8e8;
   text-transform: uppercase;
-  text-shadow: 0 0 4px rgba(255, 255, 255, 0.15);
   user-select: none;
   line-height: 1;
+  
+  /* Шрифт выглядит напечатанным на пластике */
+  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.9), 0 0 4px rgba(255, 255, 255, 0.1);
+  
+  position: relative;
+  overflow: hidden; /* Обрезаем блики по краям */
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
+/* Шарнир (горизонтальная линия посередине ячейки) */
+.cell::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #0a0a0a;
+  box-shadow: 0 1px 2px rgba(255, 255, 255, 0.1);
+  transform: translateY(-50%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Глянцевый блик сверху */
+.cell::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: 2px 2px 0 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.cell.flipping {
+  animation: flipCell 0.6s cubic-bezier(0.5, 0, 0.5, 1);
+}
+
+@keyframes flipCell {
+  0%   { transform: rotateX(0deg); }
+  49%  { transform: rotateX(88deg); }
+  50%  { transform: rotateX(90deg); }
+  51%  { transform: rotateX(-88deg); }
+  100% { transform: rotateX(0deg); }
+}
+
+/* Пустые ячейки выглядят как темные пластиковые заглушки */
 .cell.empty {
-  background: #0f0f0f;
+  background: #151515;
   color: transparent;
   text-shadow: none;
+  border-top: 1px solid #333; /* Менее выраженный верхний край */
+  box-shadow: 
+    0 3px 5px rgba(0, 0, 0, 0.5),
+    inset 0 2px 4px rgba(0, 0, 0, 0.9),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.02);
+}
+
+.cell.empty::after {
+  opacity: 0.3; /* Блик приглушен */
 }
 
 .status-col .cell:not(.empty) {
   color: #ffb400;
-  text-shadow: 0 0 6px rgba(255, 180, 0, 0.45);
+  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.9), 0 0 8px rgba(255, 180, 0, 0.6);
 }

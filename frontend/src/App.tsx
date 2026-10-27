@@ -12,12 +12,19 @@ const API_URL = 'http://localhost:8000/api/schedule';
 const EXPIRE_MINUTES = 10;
 const FLIP_INTERVAL_MS = 10000;
 const FLIP_DURATION_MS = 600;
-const FLIP_STAGGER_MS = 120;
+const ROW_STAGGER_MS = 120;
+const CHAR_STAGGER_MS = 25;
 
 const TIME_LEN = 5;
 const GROUP_LEN = 6;
 const ROOM_LEN = 14;
 const STATUS_LEN = 5;
+
+// Смещения для расчета сквозной волны по всей строке
+const OFFSET_TIME = 0;
+const OFFSET_GROUP = OFFSET_TIME + TIME_LEN;
+const OFFSET_ROOM = OFFSET_GROUP + GROUP_LEN;
+const OFFSET_STATUS = OFFSET_ROOM + ROOM_LEN;
 
 const getInitialTime = (): Date => {
   const params = new URLSearchParams(window.location.search);
@@ -30,25 +37,6 @@ const getInitialTime = (): Date => {
   }
   return new Date();
 };
-
-function CharCells({ text, length, forceEmpty }: { text: string; length: number; forceEmpty?: boolean }) {
-  const padded = forceEmpty
-    ? ' '.repeat(length)
-    : text.padEnd(length, ' ').slice(0, length);
-
-  return (
-    <>
-      {padded.split('').map((ch, i) => {
-        const isEmpty = ch === ' ';
-        return (
-          <span key={i} className={`cell ${isEmpty ? 'empty' : ''}`}>
-            {isEmpty ? '\u00A0' : ch}
-          </span>
-        );
-      })}
-    </>
-  );
-}
 
 function App() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -172,15 +160,8 @@ interface FlipRowProps {
 }
 
 function FlipRow({ lesson, currentTime, flipTrigger, index }: FlipRowProps) {
-  const [flipping, setFlipping] = useState(false);
-  const [visibleLesson, setVisibleLesson] = useState<Lesson | null>(lesson);
   const [visibleTime, setVisibleTime] = useState<Date>(currentTime);
-  const lessonRef = useRef(lesson);
   const timeRef = useRef(currentTime);
-
-  useEffect(() => {
-    lessonRef.current = lesson;
-  }, [lesson]);
 
   useEffect(() => {
     timeRef.current = currentTime;
@@ -188,56 +169,129 @@ function FlipRow({ lesson, currentTime, flipTrigger, index }: FlipRowProps) {
 
   useEffect(() => {
     if (flipTrigger === 0) return;
-    const delay = index * FLIP_STAGGER_MS;
+    const delay = index * ROW_STAGGER_MS;
     const half = FLIP_DURATION_MS / 2;
 
-    const startTimer = setTimeout(() => setFlipping(true), delay);
     const swapTimer = setTimeout(() => {
-      setVisibleLesson(lessonRef.current);
       setVisibleTime(timeRef.current);
     }, delay + half);
-    const endTimer = setTimeout(() => setFlipping(false), delay + FLIP_DURATION_MS);
+
+    return () => clearTimeout(swapTimer);
+  }, [flipTrigger, index]);
+
+  if (lesson === null) {
+    return (
+      <div className="row">
+        <div className="col time-col"><FlipText text="" length={TIME_LEN} forceEmpty flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_TIME} /></div>
+        <div className="col group-col"><FlipText text="" length={GROUP_LEN} forceEmpty flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_GROUP} /></div>
+        <div className="col room-col"><FlipText text="" length={ROOM_LEN} forceEmpty flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_ROOM} /></div>
+        <div className="col status-col"><FlipText text="" length={STATUS_LEN} forceEmpty flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_STATUS} /></div>
+      </div>
+    );
+  }
+
+  const start = new Date(lesson.start_time);
+  const end = new Date(start.getTime() + 80 * 60000);
+  const isOngoing = visibleTime >= start && visibleTime <= end;
+
+  return (
+    <div className="row">
+      <div className="col time-col">
+        <FlipText
+          text={start.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+          length={TIME_LEN}
+          flipTrigger={flipTrigger}
+          rowIndex={index}
+          charOffset={OFFSET_TIME}
+        />
+      </div>
+      <div className="col group-col">
+        <FlipText text={lesson.group} length={GROUP_LEN} flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_GROUP} />
+      </div>
+      <div className="col room-col">
+        <FlipText text={lesson.room} length={ROOM_LEN} flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_ROOM} />
+      </div>
+      <div className="col status-col">
+        <FlipText text={isOngoing ? 'ИДЕТ' : ''} length={STATUS_LEN} flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_STATUS} />
+      </div>
+    </div>
+  );
+}
+
+interface FlipTextProps {
+  text: string;
+  length: number;
+  forceEmpty?: boolean;
+  flipTrigger: number;
+  rowIndex: number;
+  charOffset: number;
+}
+
+function FlipText({ text, length, forceEmpty, flipTrigger, rowIndex, charOffset }: FlipTextProps) {
+  const padded = forceEmpty
+    ? ' '.repeat(length)
+    : text.padEnd(length, ' ').slice(0, length);
+
+  return (
+    <>
+      {padded.split('').map((ch, i) => (
+        <FlipChar
+          key={i}
+          targetChar={ch}
+          absoluteCharIndex={charOffset + i}
+          rowIndex={rowIndex}
+          flipTrigger={flipTrigger}
+        />
+      ))}
+    </>
+  );
+}
+
+interface FlipCharProps {
+  targetChar: string;
+  absoluteCharIndex: number;
+  rowIndex: number;
+  flipTrigger: number;
+}
+
+function FlipChar({ targetChar, absoluteCharIndex, rowIndex, flipTrigger }: FlipCharProps) {
+  const [currentChar, setCurrentChar] = useState(targetChar);
+  const [isFlipping, setIsFlipping] = useState(false);
+  const targetRef = useRef(targetChar);
+
+  useEffect(() => {
+    targetRef.current = targetChar;
+  }, [targetChar]);
+
+  useEffect(() => {
+    if (flipTrigger === 0) {
+      setCurrentChar(targetRef.current);
+      return;
+    }
+
+    // Теперь задержка рассчитывается по абсолютному индексу символа в строке
+    const totalDelay = (rowIndex * ROW_STAGGER_MS) + (absoluteCharIndex * CHAR_STAGGER_MS);
+    const half = FLIP_DURATION_MS / 2;
+
+    const startTimer = setTimeout(() => setIsFlipping(true), totalDelay);
+    const swapTimer = setTimeout(() => {
+      setCurrentChar(targetRef.current);
+    }, totalDelay + half);
+    const endTimer = setTimeout(() => setIsFlipping(false), totalDelay + FLIP_DURATION_MS);
 
     return () => {
       clearTimeout(startTimer);
       clearTimeout(swapTimer);
       clearTimeout(endTimer);
     };
-  }, [flipTrigger, index]);
+  }, [flipTrigger, rowIndex, absoluteCharIndex]);
 
-  if (visibleLesson === null) {
-    return (
-      <div className={`row ${flipping ? 'flipping' : ''}`}>
-        <div className="col time-col"><CharCells text="" length={TIME_LEN} forceEmpty /></div>
-        <div className="col group-col"><CharCells text="" length={GROUP_LEN} forceEmpty /></div>
-        <div className="col room-col"><CharCells text="" length={ROOM_LEN} forceEmpty /></div>
-        <div className="col status-col"><CharCells text="" length={STATUS_LEN} forceEmpty /></div>
-      </div>
-    );
-  }
-
-  const start = new Date(visibleLesson.start_time);
-  const end = new Date(start.getTime() + 80 * 60000);
-  const isOngoing = visibleTime >= start && visibleTime <= end;
+  const isEmpty = currentChar === ' ';
 
   return (
-    <div className={`row ${flipping ? 'flipping' : ''}`}>
-      <div className="col time-col">
-        <CharCells
-          text={start.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
-          length={TIME_LEN}
-        />
-      </div>
-      <div className="col group-col">
-        <CharCells text={visibleLesson.group} length={GROUP_LEN} />
-      </div>
-      <div className="col room-col">
-        <CharCells text={visibleLesson.room} length={ROOM_LEN} />
-      </div>
-      <div className="col status-col">
-        <CharCells text={isOngoing ? 'ИДЕТ' : ''} length={STATUS_LEN} />
-      </div>
-    </div>
+    <span className={`cell ${isEmpty ? 'empty' : ''} ${isFlipping ? 'flipping' : ''}`}>
+      {isEmpty ? '\u00A0' : currentChar}
+    </span>
   );
 }
 
