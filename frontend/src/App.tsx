@@ -20,7 +20,6 @@ const GROUP_LEN = 6;
 const ROOM_LEN = 14;
 const STATUS_LEN = 5;
 
-// Смещения для расчета сквозной волны по всей строке
 const OFFSET_TIME = 0;
 const OFFSET_GROUP = OFFSET_TIME + TIME_LEN;
 const OFFSET_ROOM = OFFSET_GROUP + GROUP_LEN;
@@ -256,6 +255,7 @@ interface FlipCharProps {
 
 function FlipChar({ targetChar, absoluteCharIndex, rowIndex, flipTrigger }: FlipCharProps) {
   const [currentChar, setCurrentChar] = useState(targetChar);
+  const [nextChar, setNextChar] = useState(targetChar);
   const [isFlipping, setIsFlipping] = useState(false);
   const targetRef = useRef(targetChar);
 
@@ -266,18 +266,25 @@ function FlipChar({ targetChar, absoluteCharIndex, rowIndex, flipTrigger }: Flip
   useEffect(() => {
     if (flipTrigger === 0) {
       setCurrentChar(targetRef.current);
+      setNextChar(targetRef.current);
       return;
     }
 
-    // Теперь задержка рассчитывается по абсолютному индексу символа в строке
     const totalDelay = (rowIndex * ROW_STAGGER_MS) + (absoluteCharIndex * CHAR_STAGGER_MS);
     const half = FLIP_DURATION_MS / 2;
 
-    const startTimer = setTimeout(() => setIsFlipping(true), totalDelay);
+    const startTimer = setTimeout(() => {
+      setNextChar(targetRef.current);
+      setIsFlipping(true);
+    }, totalDelay);
+
     const swapTimer = setTimeout(() => {
       setCurrentChar(targetRef.current);
     }, totalDelay + half);
-    const endTimer = setTimeout(() => setIsFlipping(false), totalDelay + FLIP_DURATION_MS);
+
+    const endTimer = setTimeout(() => {
+      setIsFlipping(false);
+    }, totalDelay + FLIP_DURATION_MS);
 
     return () => {
       clearTimeout(startTimer);
@@ -286,11 +293,23 @@ function FlipChar({ targetChar, absoluteCharIndex, rowIndex, flipTrigger }: Flip
     };
   }, [flipTrigger, rowIndex, absoluteCharIndex]);
 
-  const isEmpty = currentChar === ' ';
+  const isCurrentEmpty = currentChar === ' ';
+  const isNextEmpty = nextChar === ' ';
 
   return (
-    <span className={`cell ${isEmpty ? 'empty' : ''} ${isFlipping ? 'flipping' : ''}`}>
-      {isEmpty ? '\u00A0' : currentChar}
+    <span className={`cell ${isFlipping ? 'flipping' : ''}`}>
+      <span className={`half top-static ${isNextEmpty ? 'empty' : ''}`}>
+        <span className="char">{isNextEmpty ? '\u00A0' : nextChar}</span>
+      </span>
+      <span className={`half bottom-static ${isCurrentEmpty ? 'empty' : ''}`}>
+        <span className="char">{isCurrentEmpty ? '\u00A0' : currentChar}</span>
+      </span>
+      <span className={`half top-flap ${isCurrentEmpty ? 'empty' : ''}`}>
+        <span className="char">{isCurrentEmpty ? '\u00A0' : currentChar}</span>
+      </span>
+      <span className={`half bottom-flap ${isNextEmpty ? 'empty' : ''}`}>
+        <span className="char">{isNextEmpty ? '\u00A0' : nextChar}</span>
+      </span>
     </span>
   );
 }
