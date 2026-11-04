@@ -17,24 +17,34 @@ app.add_middleware(
 )
 
 GRAPHQL_URL = "https://api.newlxp.ru/graphql"
-EMAIL = "PogorovSM24@magas.ithub.ru"
-PASSWORD = "FuAEP13rvay&"
 
-_cached_token = None
+# Список аккаунтов. Первый (куратор) падает с ошибкой 500, второй (студент) забирает данные.
+ACCOUNTS = [
+    {
+        "email": "milanachutieca52@gmail.com", 
+        "password": "ITmag.06", 
+        "role": "TEACHER"
+    },
+    {
+        "email": "PogorovSM24@magas.ithub.ru", 
+        "password": "FuAEP13rvay&", 
+        "role": "STUDENT"
+    }
+]
+
+_cached_tokens = {}
 _session = None
 
 def get_session():
-    """Создает устойчивую сессию с повторными попытками при обрыве связи"""
     global _session
     if _session:
         return _session
 
     session = requests.Session()
-    # Отключаем системные прокси, которые могут блокировать запрос
     session.trust_env = False 
     
     retry_strategy = Retry(
-        total=5,
+        total=3,
         backoff_factor=1,
         status_forcelist=[429, 500, 502, 503, 504],
         allowed_methods=["HEAD", "GET", "POST", "OPTIONS"]
@@ -43,7 +53,6 @@ def get_session():
     session.mount("https://", adapter)
     session.mount("http://", adapter)
 
-    # Подменяем User-Agent на реальный браузер, чтобы не попасть под блокировку
     session.headers.update({
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept": "application/json",
@@ -55,10 +64,10 @@ def get_session():
     _session = session
     return _session
 
-def get_access_token():
-    global _cached_token
-    if _cached_token:
-        return _cached_token
+def get_access_token(email, password):
+    global _cached_tokens
+    if email in _cached_tokens:
+        return _cached_tokens[email]
 
     session = get_session()
     query = """
@@ -70,7 +79,7 @@ def get_access_token():
     """
     payload = {
         "operationName": "SignIn",
-        "variables": {"input": {"email": EMAIL, "password": PASSWORD}},
+        "variables": {"input": {"email": email, "password": password}},
         "query": query
     }
     
@@ -79,97 +88,112 @@ def get_access_token():
         response.raise_for_status()
         data = response.json()
     except requests.exceptions.RequestException as e:
-        logging.error(f"Сетевая ошибка при авторизации: {e}")
-        raise Exception(f"Не удалось подключиться к серверу авторизации: {e}")
+        logging.error(f"Сетевая ошибка при авторизации ({email}): {e}")
+        return None
     
     if "errors" in data:
-        logging.error(f"Ошибка авторизации: {data['errors']}")
-        raise Exception("Неверный логин или пароль (NewLXP)")
+        logging.error(f"Ошибка авторизации ({email}): {data['errors']}")
+        return None
         
-    _cached_token = data["data"]["signIn"]["accessToken"]
-    return _cached_token
+    token = data["data"]["signIn"]["accessToken"]
+    _cached_tokens[email] = token
+    return token
 
 def fetch_schedule_for_date(date_str: str):
-    token = get_access_token()
-    session = get_session()
-    
     query = """
     query ManyClassesForSchedule($input: ManyClassesInput!) {
       manyClasses(input: $input) {
         id
         from
-        learningGroup { name }
-        classroom { name }
+        learningGroup { name __typename }
+        classroom { name __typename }
+        __typename
       }
     }
     """
     
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",
-        "apollographql-client-name": "web"
-    }
-
     date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-    next_week_str = (date_obj + timedelta(days=7)).strftime("%Y-%m-%d")
+    next_day_str = (date_obj + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    all_classes = []
-    page = 1
-    page_size = 50
+    for account in ACCOUNTS:
+        logging.info(f"Попытка получить расписание с аккаунта: {account['email']} (Роль: {account['role']})")
+        
+        token = get_access_token(account["email"], account["password"])
+        if not token:
+            continue
 
-    while True:
-        variables = {
-            "input": {
-                "page": page,
-                "pageSize": page_size,
-                "filters": {
-                    "roles": ["STUDENT"],
-                    "interval": {"from": date_str, "to": next_week_str}
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "apollographql-client-name": "web"
+        }
+
+        all_classes = []
+        page = 1
+        page_size = 50
+        success = True
+
+        while True:
+            variables = {
+                "input": {
+                    "page": page,
+                    "pageSize": page_size,
+                    "filters": {
+                        "roles": [account["role"]], 
+                        "interval": {"from": date_str, "to": next_day_str}
+                    }
                 }
             }
-        }
 
-        payload = {
-            "operationName": "ManyClassesForSchedule",
-            "variables": variables,
-            "query": query
-        }
+            payload = {
+                "operationName": "ManyClassesForSchedule",
+                "variables": variables,
+                "query": query
+            }
 
-        try:
-            response = session.post(GRAPHQL_URL, json=payload, headers=headers, timeout=20)
-            response.raise_for_status()
-            data = response.json()
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Сетевая ошибка при запросе расписания (страница {page}): {e}")
-            # При обрыве связи пробуем еще раз через 2 секунды
-            time.sleep(2)
-            continue
+            try:
+                session = get_session()
+                response = session.post(GRAPHQL_URL, json=payload, headers=headers, timeout=20)
+                response.raise_for_status()
+                data = response.json()
+            except requests.exceptions.RequestException as e:
+                logging.error(f"Сетевая ошибка при запросе расписания ({account['email']}, стр {page}): {e}")
+                success = False
+                break
+                
+            if "errors" in data:
+                error_msg = data['errors'][0]['message']
+                logging.warning(f"Ошибка API ({account['email']}): {error_msg}")
+                success = False
+                if data['errors'][0].get('extensions', {}).get('code') == 'UNAUTHENTICATED':
+                    _cached_tokens.pop(account["email"], None)
+                break
+                
+            classes = data["data"]["manyClasses"]
+            all_classes.extend(classes)
             
-        if "errors" in data:
-            error_msg = data['errors'][0]['message']
-            logging.error(f"Ошибка API: {error_msg}")
-            raise Exception(f"API вернул ошибку: {error_msg}")
+            if len(classes) < page_size:
+                break
+                
+            page += 1
+            time.sleep(0.5) 
             
-        classes = data["data"]["manyClasses"]
-        all_classes.extend(classes)
-        
-        if len(classes) < page_size:
-            break
-            
-        page += 1
-        time.sleep(0.5) # Небольшая пауза между страницами, чтобы не злить сервер
-        
-    filtered_classes = [
-        c for c in all_classes 
-        if c.get("from") and c["from"].startswith(date_str)
-    ]
-        
-    return filtered_classes
+        if success:
+            logging.info(f"Успешно получено {len(all_classes)} записей с аккаунта {account['email']}.")
+            filtered_classes = [
+                c for c in all_classes 
+                if c.get("from") and c["from"].startswith(date_str)
+            ]
+            return filtered_classes
+        else:
+            logging.info(f"Не удалось получить данные с {account['email']}. Переход к следующему аккаунту...")
+
+    raise Exception("Не удалось получить расписание ни с одного из доступных аккаунтов.")
 
 @app.get("/api/schedule")
 def get_schedule():
-    # Временно запрашиваем расписание на субботу (сегодня + 3 дня)
-    target_date = (datetime.now() + timedelta(days=0)).strftime("%Y-%m-%d")
+    # Запрашиваем расписание на (сегодня + 3 дня), как вы просили
+    target_date = (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
     logging.info(f"Запрашиваем расписание на: {target_date}")
     
     try:
@@ -180,10 +204,7 @@ def get_schedule():
     
     formatted_schedule = []
     for idx, c in enumerate(classes):
-        # Получаем сырое имя группы
         raw_group_name = c.get("learningGroup", {}).get("name") if c.get("learningGroup") else "—"
-        
-        # Отрезаем всё, что идет после первого дефиса, и убираем пробелы по краям
         group_name = raw_group_name.split('-')[0].strip()
         
         room_name = c.get("classroom", {}).get("name") if c.get("classroom") else "—"
