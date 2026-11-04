@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import './App.css';
 
 interface Lesson {
-  id: number;
+  id: string;
   group: string;
   start_time: string;
   room: string;
@@ -27,14 +27,22 @@ const OFFSET_STATUS = OFFSET_ROOM + ROOM_LEN;
 
 const getInitialTime = (): Date => {
   const params = new URLSearchParams(window.location.search);
-  const mock = params.get('mockTime');
-  if (mock && /^\d{1,2}:\d{2}$/.test(mock)) {
-    const [h, m] = mock.split(':').map(Number);
-    const d = new Date();
-    d.setHours(h, m, 0, 0);
-    return d;
+  const mockTime = params.get('mockTime');
+  const mockDate = params.get('mockDate'); // Формат: YYYY-MM-DD
+
+  const d = new Date();
+
+  if (mockDate) {
+    const [year, month, day] = mockDate.split('-').map(Number);
+    d.setFullYear(year, month - 1, day);
   }
-  return new Date();
+
+  if (mockTime && /^\d{1,2}:\d{2}$/.test(mockTime)) {
+    const [h, m] = mockTime.split(':').map(Number);
+    d.setHours(h, m, 0, 0);
+  }
+  
+  return d;
 };
 
 function App() {
@@ -42,10 +50,11 @@ function App() {
   const [currentTime, setCurrentTime] = useState<Date>(getInitialTime);
   const [flipTrigger, setFlipTrigger] = useState(0);
   const [rowCount, setRowCount] = useState(0);
-  const [isMocked] = useState<boolean>(() =>
-    new URLSearchParams(window.location.search).has('mockTime')
-  );
-
+  const [isMocked] = useState<boolean>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.has('mockTime') || params.has('mockDate');
+  });
+  
   useEffect(() => {
     const initTimer = setTimeout(() => setFlipTrigger(t => t + 1), 50);
     return () => clearTimeout(initTimer);

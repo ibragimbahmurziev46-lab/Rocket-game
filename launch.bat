@@ -12,11 +12,11 @@ if not exist "backend\venv\Scripts\python.exe" (
     python -m venv backend\venv
 )
 
-:: Проверяем наличие fastapi в venv. Если нет - устанавливаем.
-backend\venv\Scripts\python.exe -c "import fastapi" >nul 2>&1
+:: Проверяем наличие fastapi и requests в venv. Если нет - устанавливаем.
+backend\venv\Scripts\python.exe -c "import fastapi, requests" >nul 2>&1
 if %errorlevel% neq 0 (
-    echo   - Зависимости Python не найдены. Устанавливаю...
-    backend\venv\Scripts\python.exe -m pip install fastapi uvicorn
+    echo   - Зависимости Python не найдены или устарели. Устанавливаю...
+    backend\venv\Scripts\python.exe -m pip install fastapi uvicorn requests
 )
 
 :: --- 2. Проверка и установка зависимостей Фронтенда (Node.js) ---
@@ -41,4 +41,4 @@ start "Public Schedule - Backend" cmd /k "cd backend && venv\Scripts\activate.ba
 start "Public Schedule - Frontend" cmd /k "cd frontend && npm run dev"
 
 echo Готово! Окна серверов открыты.
-timeout /t 3 >nul
+timeout /t 3 >nulw
