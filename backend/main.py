@@ -35,7 +35,7 @@ ROOM_TRANSLATIONS = {
     "РИМ": "ROME", "БЕРЛИН": "BERLIN", "ТОКИО": "TOKYO",
     "ДУБАЙ": "DUBAI", "СТОКГОЛЬМ": "STOCKHOLM", "НЬЮ-ЙОРК": "NEW YORK",
     "ВЕНА": "VIENNA", "МЕХИКО": "MEXICO", "СИДНЕЙ": "SYDNEY",
-    "ДУБЛИН": "DUBLIN",
+    "ДУБЛИН": "DUBLIN","КАИР": "CARIO",
 }
 
 _cached_token = None
@@ -109,17 +109,20 @@ def load_all_groups_to_cache():
     if _students_cache is not None:
         return _students_cache
 
-    # 1. Пытаемся загрузить из локального файла
     if os.path.exists(CACHE_FILE):
         print("=== LOADING GROUPS FROM LOCAL FILE ===")
         try:
+            print("=== TRYING TO OPEN FILE ===")
             with open(CACHE_FILE, "r", encoding="utf-8") as f:
+                print("=== FILE OPENED. READING JSON... ===")
                 _students_cache = json.load(f)
+            print("=== JSON READ SUCCESSFULLY ===")
             return _students_cache
         except Exception as e:
-            print(f"Ошибка чтения кэша: {e}. Будем запрашивать у API.")
+            print(f"=== ERROR READING FILE: {e} ===")
+            print("=== FALLING BACK TO API ===")
 
-    # 2. Если файла нет, качаем из API
+    # Если файла нет или произошла ошибка, качаем из API
     with _groups_lock:
         if _students_cache is not None:
             return _students_cache
@@ -167,10 +170,13 @@ def load_all_groups_to_cache():
                 if name and students:
                     cache[name] = [s["id"] for s in students]
             
-            # 3. Сохраняем в файл
-            with open(CACHE_FILE, "w", encoding="utf-8") as f:
-                json.dump(cache, f, ensure_ascii=False, indent=4)
-            print(f"=== CACHE SAVED TO FILE. Groups: {len(cache)} ===")
+            # Сохраняем в файл
+            try:
+                with open(CACHE_FILE, "w", encoding="utf-8") as f:
+                    json.dump(cache, f, ensure_ascii=False, indent=4)
+                print(f"=== CACHE SAVED TO FILE. Groups: {len(cache)} ===")
+            except Exception as e:
+                print(f"=== ERROR SAVING TO FILE: {e} ===")
             
             _students_cache = cache
             return _students_cache
@@ -182,7 +188,7 @@ def load_all_groups_to_cache():
 
 def fetch_schedule(date_str):
     """
-    Собирает расписание на указанную дату. Кэширует результат на 5 минут отдельно для каждой даты.
+    Собирает расписание на указанную дату. Кэширует результат на 5 минут.
     """
     global _schedule_caches, _last_schedule_fetch_time
     
@@ -191,11 +197,17 @@ def fetch_schedule(date_str):
         print(f"=== GIVING SCHEDULE FOR {date_str} FROM CACHE ===")
         return _schedule_caches[date_str]
 
+    # Захватываем блокировку ТОЛЬКО для сбора расписания.
     with _schedule_lock:
+        # Проверяем еще раз (вдруг другой поток уже собрал)
+        now = time.time()
         if date_str in _schedule_caches and (now - _last_schedule_fetch_time.get(date_str, 0) < 300):
+            print(f"=== GIVING SCHEDULE FOR {date_str} FROM CACHE (AFTER WAITING) ===")
             return _schedule_caches[date_str]
             
         print(f"=== COLLECTING SCHEDULE FOR ALL GROUPS ON {date_str} ===")
+        
+        # ВАЖНО: Вызываем load_all_groups_to_cache ДО того, как начнем долгие запросы.
         cache = load_all_groups_to_cache()
         
         token = get_access_token()
@@ -220,6 +232,7 @@ def fetch_schedule(date_str):
         unique_classes = {}
 
         for group_name, student_ids in cache.items():
+            print(f"=== Проверка группы: {group_name} ===")
             for student_id in student_ids[:15]:
                 payload = {
                     "operationName": "ManyClassesForStudentProfileSchedule",
@@ -230,7 +243,7 @@ def fetch_schedule(date_str):
                 }
 
                 try:
-                    resp = session.post(GRAPHQL_URL, json=payload, headers=headers, timeout=60)
+                    resp = session.post(GRAPHQL_URL, json=payload, headers=headers, timeout=20)
                     data = resp.json()
                     
                     if "errors" not in data:
