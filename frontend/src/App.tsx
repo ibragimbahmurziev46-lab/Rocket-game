@@ -25,10 +25,14 @@ const OFFSET_GROUP = OFFSET_TIME + TIME_LEN;
 const OFFSET_ROOM = OFFSET_GROUP + GROUP_LEN;
 const OFFSET_STATUS = OFFSET_ROOM + ROOM_LEN;
 
+/**
+ * Вычисляет стартовое время для табло.
+ * Поддерживает подмену через URL (mockTime, mockDate) для отладки.
+ */
 const getInitialTime = (): Date => {
   const params = new URLSearchParams(window.location.search);
   const mockTime = params.get('mockTime');
-  const mockDate = params.get('mockDate'); // Формат: YYYY-MM-DD
+  const mockDate = params.get('mockDate');
 
   const d = new Date();
 
@@ -45,6 +49,11 @@ const getInitialTime = (): Date => {
   return d;
 };
 
+/**
+ * Главный компонент приложения.
+ * Отвечает за загрузку данных с бэкенда, отслеживание времени,
+ * триггер анимации переворота и фильтрацию прошедших пар.
+ */
 function App() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [currentTime, setCurrentTime] = useState<Date>(getInitialTime);
@@ -83,10 +92,18 @@ function App() {
     return () => clearInterval(timer);
   }, [isMocked]);
 
+    // Загрузка данных
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(API_URL);
+        // Берем текущую (или замоканную) дату и передаем её на бэкенд
+        const d = currentTime;
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const dateString = `${year}-${month}-${day}`;
+        
+        const response = await fetch(`${API_URL}?date=${dateString}`);
         const data = await response.json();
         setLessons(data.schedule);
       } catch (error) {
@@ -96,7 +113,7 @@ function App() {
     fetchData();
     const fetchTimer = setInterval(fetchData, FLIP_INTERVAL_MS);
     return () => clearInterval(fetchTimer);
-  }, []);
+  }, [currentTime]); 
 
   const [snapshotTime, setSnapshotTime] = useState<Date>(currentTime);
   const [snapshotLessons, setSnapshotLessons] = useState<Lesson[]>([]);
@@ -167,6 +184,11 @@ interface FlipRowProps {
   index: number;
 }
 
+/**
+ * Компонент одной строки табло.
+ * Отвечает за расчет статуса пары ("ИДЕТ") и делегирует отрисовку
+ * символов компонентам FlipText.
+ */
 function FlipRow({ lesson, currentTime, flipTrigger, index }: FlipRowProps) {
   const [visibleTime, setVisibleTime] = useState<Date>(currentTime);
   const timeRef = useRef(currentTime);
@@ -235,6 +257,10 @@ interface FlipTextProps {
   charOffset: number;
 }
 
+/**
+ * Компонент, разбивающий строку на отдельные символы и добавляющий пробелы
+ * для выравнивания длины строки.
+ */
 function FlipText({ text, length, forceEmpty, flipTrigger, rowIndex, charOffset }: FlipTextProps) {
   const padded = forceEmpty
     ? ' '.repeat(length)
@@ -262,6 +288,13 @@ interface FlipCharProps {
   flipTrigger: number;
 }
 
+/**
+ * Компонент одного символа (ячейки табло).
+ * Управляет 3D-анимацией переворота створок. Содержит 4 слоя:
+ * верхнюю и нижнюю статичные части, и две анимируемые створки.
+ * Замена символа происходит ровно в середине анимации, когда ячейка
+ * повернута на 90 градусов и не видна пользователю.
+ */
 function FlipChar({ targetChar, absoluteCharIndex, rowIndex, flipTrigger }: FlipCharProps) {
   const [currentChar, setCurrentChar] = useState(targetChar);
   const [nextChar, setNextChar] = useState(targetChar);
