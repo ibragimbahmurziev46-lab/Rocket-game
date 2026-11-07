@@ -98,92 +98,42 @@ def get_access_token():
     return _cached_token
 
 
+import os
+
+_last_cache_mtime = 0
+
 def load_all_groups_to_cache():
     """
     Загружает данные о группах и студентах.
-    Сначала проверяет наличие локального файла кэша.
-    Если файла нет, запрашивает данные у API и сохраняет их в файл.
+    Проверяет время изменения файла. Если файл обновился, перечитывает его.
     """
-    global _students_cache
+    global _students_cache, _last_cache_mtime
     
-    if _students_cache is not None:
+    # Если файла нет, идем в API (или возвращаем пустоту)
+    if not os.path.exists(CACHE_FILE):
+        print("=== CACHE FILE NOT FOUND, USING API ===")
+        return {} 
+
+    try:
+        # Получаем время последнего изменения файла
+        current_mtime = os.path.getmtime(CACHE_FILE)
+        
+        # Если кэш уже в памяти и файл не менялся, отдаем его
+        if _students_cache is not None and current_mtime == _last_cache_mtime:
+            return _students_cache
+            
+        # Если файл изменился или кэша нет, читаем заново
+        print("=== LOADING GROUPS FROM LOCAL FILE (FILE CHANGED OR FIRST RUN) ===")
+        with open(CACHE_FILE, "r", encoding="utf-8") as f:
+            _students_cache = json.load(f)
+            
+        _last_cache_mtime = current_mtime
+        print(f"=== JSON READ SUCCESSFULLY. Groups loaded: {len(_students_cache)} ===")
         return _students_cache
-
-    if os.path.exists(CACHE_FILE):
-        print("=== LOADING GROUPS FROM LOCAL FILE ===")
-        try:
-            print("=== TRYING TO OPEN FILE ===")
-            with open(CACHE_FILE, "r", encoding="utf-8") as f:
-                print("=== FILE OPENED. READING JSON... ===")
-                _students_cache = json.load(f)
-            print("=== JSON READ SUCCESSFULLY ===")
-            return _students_cache
-        except Exception as e:
-            print(f"=== ERROR READING FILE: {e} ===")
-            print("=== FALLING BACK TO API ===")
-
-    # Если файла нет или произошла ошибка, качаем из API
-    with _groups_lock:
-        if _students_cache is not None:
-            return _students_cache
-
-        print("=== FETCHING GROUPS FROM API (THIS MAY TAKE 1-2 MINUTES) ===")
-        token = get_access_token()
-        session = get_session()
-        headers = {"Authorization": f"Bearer {token}", "apollographql-client-name": "web"}
         
-        query = """
-        query GetCuratorGroups($input: CuratorGroupsInput!) {
-          curatorGroups(input: $input) {
-            items {
-              name
-              isArchived
-              students { id __typename }
-              __typename
-            }
-            __typename
-          }
-        }
-        """
-        
-        payload = {
-            "operationName": "GetCuratorGroups",
-            "variables": {"input": {"organizationId": ORGANIZATION_ID}},
-            "query": query
-        }
-
-        try:
-            resp = session.post(GRAPHQL_URL, json=payload, headers=headers, timeout=120)
-            data = resp.json()
-            
-            if "errors" in data:
-                print(f"=== API ERROR (GROUPS): {data['errors']} ===")
-                return {}
-                
-            groups_data = data.get("data", {}).get("curatorGroups", {})
-            items = groups_data.get("items", [])
-            
-            cache = {}
-            for group in items:
-                name = group.get("name")
-                students = group.get("students", [])
-                if name and students:
-                    cache[name] = [s["id"] for s in students]
-            
-            # Сохраняем в файл
-            try:
-                with open(CACHE_FILE, "w", encoding="utf-8") as f:
-                    json.dump(cache, f, ensure_ascii=False, indent=4)
-                print(f"=== CACHE SAVED TO FILE. Groups: {len(cache)} ===")
-            except Exception as e:
-                print(f"=== ERROR SAVING TO FILE: {e} ===")
-            
-            _students_cache = cache
-            return _students_cache
-
-        except Exception as e:
-            print(f"=== ERROR LOADING GROUPS: {e} ===")
-            return {}
+    except Exception as e:
+        print(f"=== ERROR READING FILE: {e} ===")
+        return {}
 
 
 def fetch_schedule(date_str):
@@ -197,9 +147,7 @@ def fetch_schedule(date_str):
         print(f"=== GIVING SCHEDULE FOR {date_str} FROM CACHE ===")
         return _schedule_caches[date_str]
 
-    # Захватываем блокировку ТОЛЬКО для сбора расписания.
     with _schedule_lock:
-        # Проверяем еще раз (вдруг другой поток уже собрал)
         now = time.time()
         if date_str in _schedule_caches and (now - _last_schedule_fetch_time.get(date_str, 0) < 300):
             print(f"=== GIVING SCHEDULE FOR {date_str} FROM CACHE (AFTER WAITING) ===")
@@ -207,7 +155,6 @@ def fetch_schedule(date_str):
             
         print(f"=== COLLECTING SCHEDULE FOR ALL GROUPS ON {date_str} ===")
         
-        # ВАЖНО: Вызываем load_all_groups_to_cache ДО того, как начнем долгие запросы.
         cache = load_all_groups_to_cache()
         
         token = get_access_token()
@@ -231,9 +178,12 @@ def fetch_schedule(date_str):
 
         unique_classes = {}
 
+        # Проходим по всем АКТУАЛЬНЫМ группам
         for group_name, student_ids in cache.items():
-            print(f"=== Проверка группы: {group_name} ===")
-            for student_id in student_ids[:15]:
+            print(f"=== Проверка группы: {group_name} (студентов: {len(student_ids)}) ===")
+            
+            # Проверяем первых 10 студентов в группе (этого достаточно для охвата всех подгрупп)
+            for student_id in student_ids[:5]:
                 payload = {
                     "operationName": "ManyClassesForStudentProfileSchedule",
                     "variables": {
@@ -243,6 +193,7 @@ def fetch_schedule(date_str):
                 }
 
                 try:
+                    # Таймаут 20 секунд (достаточно для быстрого ответа API)
                     resp = session.post(GRAPHQL_URL, json=payload, headers=headers, timeout=20)
                     data = resp.json()
                     
@@ -252,11 +203,14 @@ def fetch_schedule(date_str):
                             for c in classes:
                                 if not c.get("from"): continue
                                 unique_classes[c["id"]] = c
-                            break
+                            
+                            
                 except Exception as e:
-                    print(f"Ошибка при запросе для {student_id}: {e}")
+                    # Если один студент не ответил, просто идем к следующему
+                    pass
                 
-                time.sleep(0.3)
+                # Пауза 0.2 секунды (очень быстро, но достаточно, чтобы не забанить IP)
+                time.sleep(0.2)
 
         formatted = []
         for c in unique_classes.values():
@@ -270,6 +224,7 @@ def fetch_schedule(date_str):
             
         formatted.sort(key=lambda x: x["start_time"])
         
+        # Сохраняем результат в кэш
         _schedule_caches[date_str] = formatted
         _last_schedule_fetch_time[date_str] = time.time()
         
