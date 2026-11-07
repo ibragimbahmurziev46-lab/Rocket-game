@@ -1,77 +1,56 @@
 @echo off
 title Public Schedule Launcher
-setlocal enabledelayedexpansion
+color 0A
 
 echo ===================================================
 echo   Public Schedule - Automatic Launcher
 echo ===================================================
 echo.
 
-:: 1. Проверка наличия Node.js
 where node >nul 2>nul
 if %errorlevel% neq 0 (
-    echo [ERROR] Node.js is not installed or not in PATH!
+    echo [ERROR] Node.js is not installed!
+    echo Please download from https://nodejs.org/
     pause
-    exit /b
+    exit
 )
-echo [OK] Node.js is installed.
 
-:: 2. Проверка наличия Python
 where python >nul 2>nul
 if %errorlevel% neq 0 (
-    echo [ERROR] Python is not installed or not in PATH!
+    echo [ERROR] Python is not installed!
+    echo Please download from https://www.python.org/downloads/
     pause
-    exit /b
+    exit
 )
-echo [OK] Python is installed.
+
+echo [OK] Node.js and Python are installed.
 echo.
 
-:: 3. Проверка бэкенда
-echo --- Checking Backend Dependencies ---
-cd backend
-
-if not exist "venv" (
-    echo [INFO] Virtual environment not found. Creating venv...
-    python -m venv venv
-    echo [INFO] Installing Python dependencies...
-    call venv\Scripts\activate.bat
-    pip install fastapi uvicorn requests urllib3
-) else (
-    echo [OK] Virtual environment found.
+echo [INFO] Installing backend dependencies globally...
+:: Устанавливаем пакеты в системный Python (обходим venv)
+python -m pip install fastapi uvicorn requests urllib3
+if %errorlevel% neq 0 (
+    echo [ERROR] Failed to install Python dependencies.
+    echo Please make sure you have internet connection and Python is installed correctly.
+    pause
+    exit
 )
-cd ..
-echo.
 
-:: 4. Проверка фронтенда
-echo --- Checking Frontend Dependencies ---
 cd frontend
 if not exist "node_modules" (
-    echo [INFO] node_modules not found. Installing frontend dependencies...
+    echo [INFO] Installing frontend dependencies...
     call npm install
-) else (
-    echo [OK] Frontend dependencies already installed.
 )
 cd ..
+
 echo.
-
-:: 5. Запуск серверов
-echo --- Starting Servers ---
-echo [1/2] Starting Backend Server...
-start "Schedule Backend" cmd /k "cd backend && venv\Scripts\activate.bat && python -m uvicorn main:app --reload --port 8000"
-
-echo [2/2] Starting Frontend Server...
+echo [INFO] Starting servers...
+start "Schedule Backend" cmd /k "cd backend && python -m uvicorn main:app --reload --port 8000"
 start "Schedule Frontend" cmd /k "cd frontend && npm run dev"
 
-echo.
-echo [INFO] Waiting 5 seconds for servers to initialize...
 timeout /t 5 /nobreak >nul
-
-echo [INFO] Opening browser...
 start http://localhost:5173
 
 echo.
-echo ===================================================
-echo   Done! You can close this window.
-echo ===================================================
+echo Done! Closing launcher in 3 seconds...
 timeout /t 3 >nul
-exit
