@@ -183,7 +183,7 @@ def fetch_schedule(date_str):
             print(f"=== Проверка группы: {group_name} (студентов: {len(student_ids)}) ===")
             
             # Проверяем первых 10 студентов в группе (этого достаточно для охвата всех подгрупп)
-            for student_id in student_ids[5:]:
+            for student_id in student_ids[:1]:
                 payload = {
                     "operationName": "ManyClassesForStudentProfileSchedule",
                     "variables": {
