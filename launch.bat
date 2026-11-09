@@ -7,50 +7,42 @@ echo   Public Schedule - Automatic Launcher
 echo ===================================================
 echo.
 
-where node >nul 2>nul
-if %errorlevel% neq 0 (
-    echo [ERROR] Node.js is not installed!
-    echo Please download from https://nodejs.org/
+:: Проверка структуры папок
+if not exist "backend\python_embed\python.exe" (
+    echo [ERROR] Cannot find backend\python_embed\python.exe
+    echo Make sure the python_embed folder is inside the backend folder.
     pause
     exit
 )
+echo [OK] Embedded Python found.
 
-where python >nul 2>nul
-if %errorlevel% neq 0 (
-    echo [ERROR] Python is not installed!
-    echo Please download from https://www.python.org/downloads/
+if not exist "frontend\node_modules" (
+    echo [ERROR] Cannot find frontend\node_modules
+    echo Make sure you have installed frontend dependencies.
     pause
     exit
 )
-
-echo [OK] Node.js and Python are installed.
+echo [OK] Frontend dependencies found.
 echo.
 
-echo [INFO] Installing backend dependencies globally...
-:: Устанавливаем пакеты в системный Python (обходим venv)
-python -m pip install fastapi uvicorn requests urllib3
-if %errorlevel% neq 0 (
-    echo [ERROR] Failed to install Python dependencies.
-    echo Please make sure you have internet connection and Python is installed correctly.
-    pause
-    exit
-)
+:: Запуск Бэкенда
+echo [1/2] Starting Backend Server...
+start "Schedule Backend" cmd /k "cd backend && python_embed\python.exe -m uvicorn main:app --reload --port 8000"
 
-cd frontend
-if not exist "node_modules" (
-    echo [INFO] Installing frontend dependencies...
-    call npm install
-)
-cd ..
-
-echo.
-echo [INFO] Starting servers...
-start "Schedule Backend" cmd /k "cd backend && python -m uvicorn main:app --reload --port 8000"
+:: Запуск Фронтенда
+echo [2/2] Starting Frontend Server...
 start "Schedule Frontend" cmd /k "cd frontend && npm run dev"
 
+:: Ожидание и открытие браузера
+echo.
+echo [INFO] Waiting 5 seconds for servers to initialize...
 timeout /t 5 /nobreak >nul
+
+echo [INFO] Opening browser...
 start http://localhost:5173
 
 echo.
-echo Done! Closing launcher in 3 seconds...
+echo ===================================================
+echo   Done! You can close this window.
+echo ===================================================
 timeout /t 3 >nul

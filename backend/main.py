@@ -143,13 +143,13 @@ def fetch_schedule(date_str):
     global _schedule_caches, _last_schedule_fetch_time
     
     now = time.time()
-    if date_str in _schedule_caches and (now - _last_schedule_fetch_time.get(date_str, 0) < 300):
+    if date_str in _schedule_caches and (now - _last_schedule_fetch_time.get(date_str, 0) < 60):
         print(f"=== GIVING SCHEDULE FOR {date_str} FROM CACHE ===")
         return _schedule_caches[date_str]
 
     with _schedule_lock:
         now = time.time()
-        if date_str in _schedule_caches and (now - _last_schedule_fetch_time.get(date_str, 0) < 300):
+        if date_str in _schedule_caches and (now - _last_schedule_fetch_time.get(date_str, 0) < 60):
             print(f"=== GIVING SCHEDULE FOR {date_str} FROM CACHE (AFTER WAITING) ===")
             return _schedule_caches[date_str]
             
@@ -183,7 +183,7 @@ def fetch_schedule(date_str):
             print(f"=== Проверка группы: {group_name} (студентов: {len(student_ids)}) ===")
             
             # Проверяем первых 10 студентов в группе (этого достаточно для охвата всех подгрупп)
-            for student_id in student_ids[:1]:
+            for student_id in student_ids[:2]:
                 payload = {
                     "operationName": "ManyClassesForStudentProfileSchedule",
                     "variables": {
