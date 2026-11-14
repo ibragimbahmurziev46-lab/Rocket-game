@@ -50,21 +50,35 @@ const getInitialTime = (): Date => {
 function App() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [isActuallyEmpty, setIsActuallyEmpty] = useState(false);
-  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
-
-  useEffect(() => {
-    const handleResize = () => setWindowHeight(window.innerHeight);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
   const [currentTime, setCurrentTime] = useState<Date>(getInitialTime);
   const [flipTrigger, setFlipTrigger] = useState(0);
   const [rowCount, setRowCount] = useState(0);
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+  const boardBodyRef = useRef<HTMLDivElement>(null);
+  
   const [isMocked] = useState<boolean>(() => {
     const params = new URLSearchParams(window.location.search);
     return params.has('mockTime') || params.has('mockDate');
   });
   
+  // Отслеживание размера окна для центрирования логотипа
+  useEffect(() => {
+    const handleResize = () => setWindowHeight(window.innerHeight);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Автоматический возврат скролла наверх каждую минуту
+  useEffect(() => {
+    const scrollResetTimer = setInterval(() => {
+      if (boardBodyRef.current) {
+        boardBodyRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 60000);
+
+    return () => clearInterval(scrollResetTimer);
+  }, []);
+
   useEffect(() => {
     const initTimer = setTimeout(() => setFlipTrigger(t => t + 1), 50);
     return () => clearTimeout(initTimer);
@@ -149,74 +163,61 @@ function App() {
     (_, i) => displayedLessons[i] ?? null
   );
 
-    // Логика плавного появления логотипа
-    const isScheduleEmpty = displayedLessons.length === 0;
-    const [visibleShowLogo, setVisibleShowLogo] = useState(isScheduleEmpty);
-    
-    useEffect(() => {
-      if (flipTrigger === 0) {
-        setVisibleShowLogo(isScheduleEmpty);
-        return;
-      }
-      const timer = setTimeout(() => {
-        setVisibleShowLogo(isScheduleEmpty);
-      }, FLIP_DURATION_MS / 2);
-      return () => clearTimeout(timer);
-    }, [flipTrigger, isScheduleEmpty]);
+  // Логика плавного появления логотипа
+  const isScheduleEmpty = displayedLessons.length === 0;
+  const [visibleShowLogo, setVisibleShowLogo] = useState(isScheduleEmpty);
   
-    let logoRows: string[] = [];
-  
-    if (visibleShowLogo) {
-      const logoArt = [
-        " ███ ██████  █ █  █ ███ █████",
-        "  █    █  █  █ █  █ █  ██   █",
-        "  █    █  ████ █  █ ███ █ █ █",
-        "  █    █  █  █ █  █ █  ██   █",
-        " ███   █  █  █  ██  ███ █████",
-        "",
-      ];
-  
-      // Вычисляем, сколько строк помещается на экране.
-      // Высота одной ячейки (--cell-h) задана в vw, поэтому переводим в пиксели:
-      // 1vw = window.innerWidth / 100
-      // Примерная высота строки = cell-h + row-gap.
-      // Мы используем жесткий расчет пикселей для надежности.
-      
-      // В CSS: --cell-h: 3.4vw; --row-gap: 0.15vw; 
-      // Итоговая высота строки примерно 3.55vw.
-      const cellHeightVw = 3.4;
-      const rowGapVw = 0.15;
-      const totalRowHeightVw = cellHeightVw + rowGapVw;
-      
-      // Переводим vw в пиксели
-      const pixelsPerVw = window.innerWidth / 100;
-      const rowHeightPx = totalRowHeightVw * pixelsPerVw;
-      
-      // Доступная высота для строк (вычитаем шапку и отступы)
-      // Шапка (header) + заголовки (board-header) + отступы примерно 12vw.
-      const headerHeightPx = 12 * pixelsPerVw; 
-      const availableHeightPx = windowHeight - headerHeightPx;
-      
-      // Сколько всего строк может поместиться
-      const totalScreenRows = Math.floor(availableHeightPx / rowHeightPx);
-      
-      // Вычисляем отступы для центрирования
-      const paddingTop = Math.max(0, Math.floor((totalScreenRows - logoArt.length) / 2));
-      const paddingBottom = Math.max(0, totalScreenRows - logoArt.length - paddingTop);
-      
-      for (let i = 0; i < paddingTop; i++) {
-        logoRows.push(' '.repeat(TOTAL_COLS));
-      }
-  
-      logoArt.forEach(line => {
-        let paddedLine = line.padEnd(TOTAL_COLS, ' ');
-        logoRows.push(paddedLine.slice(0, TOTAL_COLS));
-      });
-  
-      for (let i = 0; i < paddingBottom; i++) {
-        logoRows.push(' '.repeat(TOTAL_COLS));
-      }
+  useEffect(() => {
+    if (flipTrigger === 0) {
+      setVisibleShowLogo(isScheduleEmpty);
+      return;
     }
+    const timer = setTimeout(() => {
+      setVisibleShowLogo(isScheduleEmpty);
+    }, FLIP_DURATION_MS / 2);
+    return () => clearTimeout(timer);
+  }, [flipTrigger, isScheduleEmpty]);
+
+  let logoRows: string[] = [];
+
+  if (visibleShowLogo) {
+    const logoArt = [
+      " ███ ██████  █ █  █ ███ █████",
+      "  █    █  █  █ █  █ █  ██   █",
+      "  █    █  ████ █  █ ███ █ █ █",
+      "  █    █  █  █ █  █ █  ██   █",
+      " ███   █  █  █  ██  ███ █████",
+      "",
+    ];
+
+    // Расчет количества строк для центрирования
+    const cellHeightVw = 3.4; // --cell-h из CSS
+    const rowGapVw = 0.15;    // --row-gap из CSS
+    const totalRowHeightVw = cellHeightVw + rowGapVw;
+    
+    const pixelsPerVw = window.innerWidth / 100;
+    const rowHeightPx = totalRowHeightVw * pixelsPerVw;
+    const headerHeightPx = 12 * pixelsPerVw; 
+    const availableHeightPx = windowHeight - headerHeightPx;
+    
+    const totalScreenRows = Math.floor(availableHeightPx / rowHeightPx);
+    
+    const paddingTop = Math.max(0, Math.floor((totalScreenRows - logoArt.length) / 2));
+    const paddingBottom = Math.max(0, totalScreenRows - logoArt.length - paddingTop);
+    
+    for (let i = 0; i < paddingTop; i++) {
+      logoRows.push(' '.repeat(TOTAL_COLS));
+    }
+
+    logoArt.forEach(line => {
+      let paddedLine = line.padEnd(TOTAL_COLS, ' ');
+      logoRows.push(paddedLine.slice(0, TOTAL_COLS));
+    });
+
+    for (let i = 0; i < paddingBottom; i++) {
+      logoRows.push(' '.repeat(TOTAL_COLS));
+    }
+  }
 
   return (
     <div className="board">
@@ -231,7 +232,7 @@ function App() {
         <div className="col status-col">Статус</div>
       </div>
 
-      <div className="board-body">
+      <div className="board-body" ref={boardBodyRef}>
         {visibleShowLogo ? (
           logoRows.map((str, rowIndex) => (
              <div className="row" key={`logo-${rowIndex}`}>

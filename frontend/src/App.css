@@ -42,17 +42,36 @@ body, html {
   color: #e8e8e8;
   font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   height: 100vh;
-  overflow: hidden;
+  overflow: hidden; 
   -webkit-font-smoothing: antialiased;
 }
 
-/* Общий контейнер табло */
 .board {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100vh; /* Высота всего экрана */
   padding: var(--board-pad-v) var(--board-pad-h);
   background: #050505;
+  overflow: hidden; /* <-- ДОБАВИТЬ: скрываем скролл на уровне всего board */
+}
+
+.board-body {
+  flex: 1; /* Занимает все свободное место */
+  display: flex;
+  flex-direction: column;
+  gap: var(--row-gap);
+  padding-top: 0.4vw;
+  
+  /* Включаем прокрутку */
+  overflow-y: auto; 
+  
+  /* Скрываем скроллбар */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE и Edge */
+}
+
+.board-body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 /* Верхние часы */
@@ -87,14 +106,7 @@ body, html {
   justify-content: center;
 }
 
-/* Контейнер для строк */
-.board-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--row-gap);
-  padding-top: 0.4vw;
-}
+
 
 /* Строка табло */
 .row {
