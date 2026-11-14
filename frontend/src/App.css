@@ -2,25 +2,25 @@
 
 /* Переменные */
 :root {
-  --cell-w: 2.5vw;
-  --cell-h: 5.5vw;
-  --cell-fs: 4.4vw;
-  --cell-mx: 0.11vw;
+  --cell-w: 2.2vw;
+  --cell-h: 3.4vw; 
+  --cell-fs: 3.1vw; 
+  --cell-mx: 0.08vw;
 
-  --board-pad-v: 0.55vw;
-  --board-pad-h: 2.5vw;
+  --board-pad-v: 0.4vw;
+  --board-pad-h: 2vw;
 
-  --header-fs: 2.8vw;
-  --colhead-fs: 1.7vw;
-  --colhead-pad: 0.45vw;
+  --header-fs: 2.2vw;
+  --colhead-fs: 1.3vw;
+  --colhead-pad: 0.35vw;
 
-  --row-gap: 0.22vw;
-  --col-gap: 2.25vw;
+  --row-gap: 0.15vw;
+  --col-gap: 2vw;
 
   --cell-total-w: calc(var(--cell-w) + 2 * var(--cell-mx));
 
   --time-w:   calc(5  * var(--cell-total-w));
-  --group-w:  calc(6  * var(--cell-total-w));
+  --group-w:  calc(5  * var(--cell-total-w)); /* ИЗМЕНЕНО: группа теперь 5 ячеек */
   --room-w:   calc(14 * var(--cell-total-w));
   --status-w: calc(5  * var(--cell-total-w));
 

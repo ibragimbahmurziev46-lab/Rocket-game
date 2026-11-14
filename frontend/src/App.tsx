@@ -16,19 +16,17 @@ const ROW_STAGGER_MS = 120;
 const CHAR_STAGGER_MS = 25;
 
 const TIME_LEN = 5;
-const GROUP_LEN = 6;
+const GROUP_LEN = 5; 
 const ROOM_LEN = 14;
 const STATUS_LEN = 5;
+
+const TOTAL_COLS = TIME_LEN + GROUP_LEN + ROOM_LEN + STATUS_LEN;
 
 const OFFSET_TIME = 0;
 const OFFSET_GROUP = OFFSET_TIME + TIME_LEN;
 const OFFSET_ROOM = OFFSET_GROUP + GROUP_LEN;
 const OFFSET_STATUS = OFFSET_ROOM + ROOM_LEN;
 
-/**
- * Вычисляет стартовое время для табло.
- * Поддерживает подмену через URL (mockTime, mockDate) для отладки.
- */
 const getInitialTime = (): Date => {
   const params = new URLSearchParams(window.location.search);
   const mockTime = params.get('mockTime');
@@ -49,13 +47,16 @@ const getInitialTime = (): Date => {
   return d;
 };
 
-/**
- * Главный компонент приложения.
- * Отвечает за загрузку данных с бэкенда, отслеживание времени,
- * триггер анимации переворота и фильтрацию прошедших пар.
- */
 function App() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [isActuallyEmpty, setIsActuallyEmpty] = useState(false);
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+
+  useEffect(() => {
+    const handleResize = () => setWindowHeight(window.innerHeight);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const [currentTime, setCurrentTime] = useState<Date>(getInitialTime);
   const [flipTrigger, setFlipTrigger] = useState(0);
   const [rowCount, setRowCount] = useState(0);
@@ -92,11 +93,9 @@ function App() {
     return () => clearInterval(timer);
   }, [isMocked]);
 
-    // Загрузка данных
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Берем текущую (или замоканную) дату и передаем её на бэкенд
         const d = currentTime;
         const year = d.getFullYear();
         const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -105,7 +104,8 @@ function App() {
         
         const response = await fetch(`${API_URL}?date=${dateString}`);
         const data = await response.json();
-        setLessons(data.schedule);
+        setLessons(data.schedule || []);
+        setIsActuallyEmpty(data.is_empty !== undefined ? data.is_empty : (data.schedule || []).length === 0);
       } catch (error) {
         console.error('Ошибка загрузки расписания:', error);
       }
@@ -113,7 +113,7 @@ function App() {
     fetchData();
     const fetchTimer = setInterval(fetchData, FLIP_INTERVAL_MS);
     return () => clearInterval(fetchTimer);
-  }, [currentTime]); 
+  }, [currentTime]);
 
   const [snapshotTime, setSnapshotTime] = useState<Date>(currentTime);
   const [snapshotLessons, setSnapshotLessons] = useState<Lesson[]>([]);
@@ -149,6 +149,75 @@ function App() {
     (_, i) => displayedLessons[i] ?? null
   );
 
+    // Логика плавного появления логотипа
+    const isScheduleEmpty = displayedLessons.length === 0;
+    const [visibleShowLogo, setVisibleShowLogo] = useState(isScheduleEmpty);
+    
+    useEffect(() => {
+      if (flipTrigger === 0) {
+        setVisibleShowLogo(isScheduleEmpty);
+        return;
+      }
+      const timer = setTimeout(() => {
+        setVisibleShowLogo(isScheduleEmpty);
+      }, FLIP_DURATION_MS / 2);
+      return () => clearTimeout(timer);
+    }, [flipTrigger, isScheduleEmpty]);
+  
+    let logoRows: string[] = [];
+  
+    if (visibleShowLogo) {
+      const logoArt = [
+        " ███ ██████  █ █  █ ███ █████",
+        "  █    █  █  █ █  █ █  ██   █",
+        "  █    █  ████ █  █ ███ █ █ █",
+        "  █    █  █  █ █  █ █  ██   █",
+        " ███   █  █  █  ██  ███ █████",
+        "",
+      ];
+  
+      // Вычисляем, сколько строк помещается на экране.
+      // Высота одной ячейки (--cell-h) задана в vw, поэтому переводим в пиксели:
+      // 1vw = window.innerWidth / 100
+      // Примерная высота строки = cell-h + row-gap.
+      // Мы используем жесткий расчет пикселей для надежности.
+      
+      // В CSS: --cell-h: 3.4vw; --row-gap: 0.15vw; 
+      // Итоговая высота строки примерно 3.55vw.
+      const cellHeightVw = 3.4;
+      const rowGapVw = 0.15;
+      const totalRowHeightVw = cellHeightVw + rowGapVw;
+      
+      // Переводим vw в пиксели
+      const pixelsPerVw = window.innerWidth / 100;
+      const rowHeightPx = totalRowHeightVw * pixelsPerVw;
+      
+      // Доступная высота для строк (вычитаем шапку и отступы)
+      // Шапка (header) + заголовки (board-header) + отступы примерно 12vw.
+      const headerHeightPx = 12 * pixelsPerVw; 
+      const availableHeightPx = windowHeight - headerHeightPx;
+      
+      // Сколько всего строк может поместиться
+      const totalScreenRows = Math.floor(availableHeightPx / rowHeightPx);
+      
+      // Вычисляем отступы для центрирования
+      const paddingTop = Math.max(0, Math.floor((totalScreenRows - logoArt.length) / 2));
+      const paddingBottom = Math.max(0, totalScreenRows - logoArt.length - paddingTop);
+      
+      for (let i = 0; i < paddingTop; i++) {
+        logoRows.push(' '.repeat(TOTAL_COLS));
+      }
+  
+      logoArt.forEach(line => {
+        let paddedLine = line.padEnd(TOTAL_COLS, ' ');
+        logoRows.push(paddedLine.slice(0, TOTAL_COLS));
+      });
+  
+      for (let i = 0; i < paddingBottom; i++) {
+        logoRows.push(' '.repeat(TOTAL_COLS));
+      }
+    }
+
   return (
     <div className="board">
       <div className="header">
@@ -163,15 +232,26 @@ function App() {
       </div>
 
       <div className="board-body">
-        {rows.map((lesson, index) => (
-          <FlipRow
-            key={index}
-            lesson={lesson}
-            currentTime={snapshotTime}
-            flipTrigger={flipTrigger}
-            index={index}
-          />
-        ))}
+        {visibleShowLogo ? (
+          logoRows.map((str, rowIndex) => (
+             <div className="row" key={`logo-${rowIndex}`}>
+                <div className="col time-col"><FlipText text={str.slice(OFFSET_TIME, OFFSET_GROUP)} length={TIME_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_TIME} /></div>
+                <div className="col group-col"><FlipText text={str.slice(OFFSET_GROUP, OFFSET_ROOM)} length={GROUP_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_GROUP} /></div>
+                <div className="col room-col"><FlipText text={str.slice(OFFSET_ROOM, OFFSET_STATUS)} length={ROOM_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_ROOM} /></div>
+                <div className="col status-col"><FlipText text={str.slice(OFFSET_STATUS)} length={STATUS_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_STATUS} /></div>
+             </div>
+          ))
+        ) : (
+          rows.map((lesson, index) => (
+            <FlipRow
+              key={index}
+              lesson={lesson}
+              currentTime={snapshotTime}
+              flipTrigger={flipTrigger}
+              index={index}
+            />
+          ))
+        )}
       </div>
     </div>
   );
@@ -184,11 +264,6 @@ interface FlipRowProps {
   index: number;
 }
 
-/**
- * Компонент одной строки табло.
- * Отвечает за расчет статуса пары ("ИДЕТ") и делегирует отрисовку
- * символов компонентам FlipText.
- */
 function FlipRow({ lesson, currentTime, flipTrigger, index }: FlipRowProps) {
   const [visibleTime, setVisibleTime] = useState<Date>(currentTime);
   const timeRef = useRef(currentTime);
@@ -257,10 +332,6 @@ interface FlipTextProps {
   charOffset: number;
 }
 
-/**
- * Компонент, разбивающий строку на отдельные символы и добавляющий пробелы
- * для выравнивания длины строки.
- */
 function FlipText({ text, length, forceEmpty, flipTrigger, rowIndex, charOffset }: FlipTextProps) {
   const padded = forceEmpty
     ? ' '.repeat(length)
@@ -288,13 +359,6 @@ interface FlipCharProps {
   flipTrigger: number;
 }
 
-/**
- * Компонент одного символа (ячейки табло).
- * Управляет 3D-анимацией переворота створок. Содержит 4 слоя:
- * верхнюю и нижнюю статичные части, и две анимируемые створки.
- * Замена символа происходит ровно в середине анимации, когда ячейка
- * повернута на 90 градусов и не видна пользователю.
- */
 function FlipChar({ targetChar, absoluteCharIndex, rowIndex, flipTrigger }: FlipCharProps) {
   const [currentChar, setCurrentChar] = useState(targetChar);
   const [nextChar, setNextChar] = useState(targetChar);

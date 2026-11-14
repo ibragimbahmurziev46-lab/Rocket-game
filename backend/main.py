@@ -242,7 +242,7 @@ def get_schedule(date: str = None):
     
     try:
         schedule = fetch_schedule(target_date)
-        return {"schedule": schedule}
+        return {"schedule": schedule, "is_empty": len(schedule) == 0}
     except Exception as e:
         logging.error(f"Критическая ошибка: {e}")
         raise HTTPException(status_code=502, detail=str(e))
