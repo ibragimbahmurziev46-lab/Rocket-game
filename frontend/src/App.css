@@ -1,6 +1,6 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&display=swap');
 
-/* Переменные */
 :root {
   --cell-w: 2.8vw;
   --cell-h: 4vw;
@@ -17,7 +17,7 @@
   --row-gap: 0.15vw;
   --col-gap: 2.8vw;
 
-  --cell-total-w: calc(var(--cell-w) + 2 * var(--cell-mx));
+   --cell-total-w: calc(var(--cell-w) + 2 * var(--cell-mx));
 
   --time-w:   calc(5  * var(--cell-total-w));
   --group-w:  calc(5  * var(--cell-total-w));
@@ -26,11 +26,11 @@
 
   --char-y-offset: 0vw; 
 }
+
 * {
   box-sizing: border-box;
 }
 
-/* Базовые стили страницы */
 body, html {
   margin: 0;
   padding: 0;
@@ -38,50 +38,201 @@ body, html {
   color: #e8e8e8;
   font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   height: 100vh;
-  overflow: hidden; 
+  overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
 .board {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Высота всего экрана */
+  height: 100vh;
   padding: var(--board-pad-v) var(--board-pad-h);
   background: #050505;
-  overflow: hidden; /* <-- ДОБАВИТЬ: скрываем скролл на уровне всего board */
+  overflow: hidden;
 }
 
-.board-body {
-  flex: 1; /* Занимает все свободное место */
+.header-container {
   display: flex;
   flex-direction: column;
-  gap: var(--row-gap);
-  padding-top: 0.4vw;
-  
-  /* Включаем прокрутку */
-  overflow-y: auto; 
-  
-  /* Скрываем скроллбар */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE и Edge */
+  align-items: center;
+  border-bottom: 1px solid #2a2a2a;
+  margin-bottom: 0.4vw;
+  padding-bottom: 0.5vw;
 }
 
-.board-body::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+/* Контейнер для часов и кнопки сброса */
+.time-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 5vw; /* Фиксированная высота предотвращает сдвиг интерфейса */
+  margin-bottom: 0.5vw;
 }
 
-/* Верхние часы */
-.header {
+.clock-container {
+  cursor: pointer;
+  user-select: none;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 2vw;
-  margin-bottom: 0.4vw;
-  padding: 0.3vw 0 0.5vw;
-  border-bottom: 1px solid #2a2a2a;
 }
 
-/* Заголовки столбцов */
+/* Невидимый блок справа, чтобы уровновесить кнопку слева и центрировать часы */
+.spacer-btn {
+  width: 3vw;
+  height: 3vw;
+  margin-left: 2vw; 
+  visibility: hidden;
+}
+
+/* Кнопка сброса (иконка часов) */
+.reset-btn {
+  background: transparent; /* Черный/прозрачный фон */
+  color: rgb(171, 0, 234); /* Фиолетовая иконка */
+  border: none; /* Убрали края */
+  border-radius: 8px;
+  width: 3vw;
+  height: 3vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  padding: 0;
+  margin-right: 2vw; /* Отступ от часов */
+}
+
+.reset-btn svg {
+  width: 80%;
+  height: 80%;
+}
+
+/* При наведении фон становится серым */
+.reset-btn:hover {
+  background: #333; 
+}
+
+/* Часы (фиолетовые) */
+.clock-display {
+  font-size: var(--header-fs);
+  font-weight: 700;
+  color: rgb(171, 0, 234);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 10px rgba(171, 0, 234, 0.5);
+  line-height: 1;
+}
+
+.time-editor {
+  display: flex;
+  align-items: center;
+  gap: 0.5vw;
+  font-size: var(--header-fs);
+  font-weight: 700;
+  color: rgb(171, 0, 234);
+  line-height: 1;
+}
+
+.time-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.time-val {
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 10px rgba(171, 0, 234, 0.5);
+}
+
+.time-sep {
+  text-shadow: 0 0 10px rgba(171, 0, 234, 0.5);
+  padding-bottom: 0.2vw;
+}
+
+/* Стрелки времени (черно-белые) */
+.arrow-btn {
+  background: transparent;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5vw;
+  padding: 0;
+  width: 4vw; 
+  text-align: center;
+  transition: all 0.2s;
+  opacity: 0.7;
+}
+
+.arrow-btn:hover {
+  color: #ccc;
+  opacity: 1;
+}
+
+.date-controls {
+  display: flex;
+  align-items: center;
+  gap: 1.5vw;
+}
+
+.current-date {
+  color: #e8e8e8;
+  font-size: calc(var(--header-fs) * 0.45);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 18vw;
+  text-align: center;
+}
+
+/* Кнопки навигации по датам (черно-белые) */
+.nav-btn {
+  background: #1a1a1a;
+  color: #fff;
+  border: 1px solid #fff;
+  border-radius: 8px;
+  width: 3vw; 
+  height: 3vw; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: calc(var(--header-fs) * 0.35);
+  transition: all 0.2s;
+}
+
+.nav-btn:hover {
+  background: #fff;
+  color: #000;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+
+.reset-btn {
+  background: #000;
+  color:rgba(171, 0, 234);
+  border-width: 0px;
+  width: 3vw;
+  height: 3vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.reset-btn svg {
+  width: 60%;
+  height: 60%;
+}
+
+.reset-btn:hover {
+  background: #1a1a1a;
+  color:rgba(171, 0, 234, 0.5);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Красная линия над столбцами */
 .board-header {
   display: flex;
   background: #1a1a1a;
@@ -98,194 +249,21 @@ body, html {
   justify-content: center;
 }
 
-.input-field {
-  background: transparent;
-  border: 1px solid #333;
-  color: #f5f5f5;
-  font-family: inherit;
-  font-size: var(--header-fs);
-  font-weight: 700;
-  text-align: center;
-  outline: none;
-  padding: 0 0.5vw;
-  border-radius: 4px;
-  width: 16vw;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.06em;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
-}
-
-.input-field:focus {
-  border-color: #8b1a1a;
-}
-
-.controls-popup {
-  position: absolute;
-  top: 100%;
-  display: flex;
-  gap: 1.5vw;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  padding: 0.5vw 1vw;
-  border-radius: 4px;
-  z-index: 100;
-  margin-top: 0.5vw;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
-}
-
-.control-column {
+.board-body {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.2vw;
+  gap: var(--row-gap);
+  padding-top: 0.4vw;
+  overflow-y: auto;
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
 }
 
-.unit-label {
-  color: #888;
-  font-size: 1.2vw;
-  font-family: inherit;
-  font-weight: 700;
-  user-select: none;
+.board-body::-webkit-scrollbar {
+  display: none;
 }
 
-.header-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 3vw;
-  margin-bottom: 0.5vw;
-  padding: 0.5vw 0;
-  border-bottom: 1px solid #2a2a2a;
-}
-
-.control-group {
-  display: flex;
-  align-items: center;
-  gap: 1vw;
-}
-
-.segmented-input {
-  display: flex;
-  align-items: center;
-  background: transparent;
-  border: 1px solid #333;
-  padding: 0.2vw 0.5vw;
-  border-radius: 4px;
-  font-family: inherit;
-  font-size: var(--header-fs);
-  font-weight: 700;
-  color: #f5f5f5;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.06em;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
-}
-
-.segment-wrapper {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.segment-input {
-  background: transparent;
-  border: none;
-  color: #f5f5f5;
-  font-family: inherit;
-  font-size: var(--header-fs);
-  font-weight: 700;
-  text-align: center;
-  outline: none;
-  padding: 0;
-  width: 2ch;
-}
-
-.segment-input.year-input {
-  width: 4ch;
-}
-
-.separator {
-  color: #888;
-  margin: 0 0.1vw;
-  user-select: none;
-}
-
-/* Стрелки */
-.arrow-btn {
-  position: absolute;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  color: #fff;
-  cursor: pointer;
-  padding: 0 0.2vw;
-  font-size: 1vw;
-  line-height: 1;
-  border-radius: 2px;
-  z-index: 10;
-  display: none; /* Скрыты по умолчанию */
-}
-
-/* Показываем стрелки при фокусе на группу */
-.segment-wrapper:focus-within .arrow-btn {
-  display: block;
-}
-
-.arrow-btn:hover {
-  color: #ffb400;
-  border-color: #ffb400;
-}
-
-.arrow-up {
-  top: -1.5vw;
-}
-
-.arrow-down {
-  bottom: -1.5vw;
-}
-
-.now-btn {
-  background: #1a1a1a;
-  border: 1px solid #555;
-  color: #ffb400;
-  padding: 0.5vw;
-  cursor: pointer;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  transition: all 0.2s;
-}
-
-.now-btn:hover {
-  background: #333;
-  border-color: #ffb400;
-}
-
-/* Размер самой иконки внутри кнопки */
-.clock-icon {
-  width: 1.8vw;
-  height: 1.8vw;
-  stroke: currentColor;
-}
-.control-btn:hover { background: #8b1a1a; }
-
-/* Скрываем стандартные иконки календаря/часов в некоторых браузерах, чтобы не портить стиль */
-input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="time"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-  opacity: 0.5;
-  cursor: pointer;
-}
-
-.input-group {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* Строка табло */
 .row {
   display: flex;
   font-size: var(--cell-fs);
@@ -295,7 +273,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   justify-content: center;
 }
 
-/* Столбцы */
 .col {
   display: flex;
   justify-content: center;
@@ -310,7 +287,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .room-col   { width: var(--room-w); }
 .status-col { width: var(--status-w); }
 
-/* Контейнер одного символа (ячейка) */
 .cell {
   position: relative;
   display: inline-flex;
@@ -335,7 +311,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   perspective: 600px; 
 }
 
-/* Линия шарнира */
 .cell::before {
   content: '';
   position: absolute;
@@ -350,7 +325,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   pointer-events: none;
 }
 
-/* Блик */
 .cell::after {
   content: '';
   position: absolute;
@@ -364,7 +338,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   pointer-events: none;
 }
 
-/* Половинки символа (створки и статичные слои) */
 .half {
   position: absolute;
   left: 0;
@@ -373,8 +346,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   overflow: hidden;
   background: #222;
 }
-
-/* Текст символа */
 
 .char {
   display: block;
@@ -385,24 +356,12 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   text-shadow: 0 2px 2px rgba(0, 0, 0, 0.9), 0 0 4px rgba(255, 255, 255, 0.1);
 }
 
-/* Статичные слои */
-.top-static { 
-  top: 0; 
-  z-index: 1; 
-  border-radius: 2px 2px 0 0; 
-}
-.bottom-static { 
-  bottom: 0; 
-  z-index: 1; 
-  border-radius: 0 0 2px 2px; 
-}
+.top-static { top: 0; z-index: 1; border-radius: 2px 2px 0 0; }
+.bottom-static { bottom: 0; z-index: 1; border-radius: 0 0 2px 2px; }
 
 .top-static .char { transform: translateY(var(--char-y-offset)); }
 .bottom-static .char { transform: translateY(calc(-50% + var(--char-y-offset))); }
-.top-flap .char { transform: translateY(var(--char-y-offset)); }
-.bottom-flap .char { transform: translateY(calc(-50% + var(--char-y-offset))); }
 
-/* Анимируемые створки */
 .top-flap {
   top: 0;
   z-index: 3;
@@ -411,6 +370,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   transform: rotateX(90deg);
   backface-visibility: hidden; 
 }
+.top-flap .char { transform: translateY(var(--char-y-offset)); }
 
 .bottom-flap {
   bottom: 0;
@@ -420,8 +380,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   transform: rotateX(-90deg);
   backface-visibility: hidden;
 }
+.bottom-flap .char { transform: translateY(calc(-50% + var(--char-y-offset))); }
 
-/* Ключевые кадры для 3D-переворота */
 @keyframes flipTop {
   0% { transform: rotateX(0deg); }
   100% { transform: rotateX(90deg); }
@@ -432,7 +392,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   100% { transform: rotateX(0deg); }
 }
 
-/* Применение анимации */
 .cell.flipping .top-flap {
   animation-name: flipTop;
   animation-duration: 0.3s;
@@ -448,7 +407,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   animation-fill-mode: forwards;
 }
 
-/* Оформление пустых ячеек */
 .half.empty {
   background: #151515;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.9), inset 0 -1px 2px rgba(255, 255, 255, 0.02);
@@ -463,8 +421,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   opacity: 0.3;
 }
 
-/* Оформление статуса */
+/* Статус - фиолетовый */
 .status-col .half:not(.empty) .char {
-  color: #ffb400;
-  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.9), 0 0 8px rgba(255, 180, 0, 0.6);
+  color: rgb(171, 0, 234);
+  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.9), 0 0 10px rgba(171, 0, 234, 0.7);
 }
