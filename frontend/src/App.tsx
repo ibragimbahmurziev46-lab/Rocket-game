@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
 import './App.css';
 
 interface Lesson {
@@ -77,12 +77,14 @@ function App() {
     return params.has('mockTime') || params.has('mockDate');
   });
   
+  // Оптимизация: отслеживание ресайза
   useEffect(() => {
     const handleResize = () => setWindowHeight(window.innerHeight);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Оптимизация: авто-скролл
   useEffect(() => {
     const scrollResetTimer = setInterval(() => {
       if (boardBodyRef.current) {
@@ -107,6 +109,7 @@ function App() {
     return () => document.removeEventListener('visibilitychange', onVisible);
   }, []);
 
+  // Часы
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(prev => {
@@ -120,10 +123,12 @@ function App() {
     return () => clearInterval(timer);
   }, [isMocked]);
 
+  // Оптимизация: загрузка данных зависит только от viewDate, а не от времени
+  const dateString = useMemo(() => formatDate(viewDate), [viewDate]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const dateString = formatDate(viewDate);
         const response = await fetch(`${API_URL}?date=${dateString}`);
         const data = await response.json();
         setLessons(data.schedule || []);
@@ -135,7 +140,7 @@ function App() {
     fetchData();
     const fetchTimer = setInterval(fetchData, FLIP_INTERVAL_MS);
     return () => clearInterval(fetchTimer);
-  }, [viewDate]);
+  }, [dateString]); // Зависимость исправлена
 
   const [snapshotTime, setSnapshotTime] = useState<Date>(currentTime);
   const [snapshotLessons, setSnapshotLessons] = useState<Lesson[]>([]);
@@ -150,7 +155,7 @@ function App() {
     setSnapshotLessons(lessonsRef.current);
   }, [flipTrigger, lessons]);
 
-  const isToday = formatDate(viewDate) === formatDate(new Date());
+  const isToday = dateString === formatDate(new Date());
 
   const displayedLessons = useMemo(() => {
     return snapshotLessons
@@ -169,10 +174,10 @@ function App() {
     }
   }, [displayedLessons.length, rowCount]);
 
-  const rows: (Lesson | null)[] = Array.from(
+  const rows: (Lesson | null)[] = useMemo(() => Array.from(
     { length: rowCount },
     (_, i) => displayedLessons[i] ?? null
-  );
+  ), [rowCount, displayedLessons]);
 
   const isScheduleEmpty = displayedLessons.length === 0;
   const [visibleShowLogo, setVisibleShowLogo] = useState(isScheduleEmpty);
@@ -188,9 +193,10 @@ function App() {
     return () => clearTimeout(timer);
   }, [flipTrigger, isScheduleEmpty]);
 
-  let logoRows: string[] = [];
-
-  if (visibleShowLogo) {
+  // Оптимизация: мемоизация логотипа
+  const logoRows = useMemo(() => {
+    if (!visibleShowLogo) return [];
+    
     const logoArt = [
       " ███ ██████  █ █  █ ███ █████",
       "  █    █  █  █ █  █ █  ██   █",
@@ -210,24 +216,32 @@ function App() {
     const paddingTop = Math.max(0, Math.floor((totalScreenRows - logoArt.length) / 2));
     const paddingBottom = Math.max(0, totalScreenRows - logoArt.length - paddingTop);
     
-    for (let i = 0; i < paddingTop; i++) logoRows.push(' '.repeat(TOTAL_COLS));
-    logoArt.forEach(line => logoRows.push(line.padEnd(TOTAL_COLS, ' ').slice(0, TOTAL_COLS)));
-    for (let i = 0; i < paddingBottom; i++) logoRows.push(' '.repeat(TOTAL_COLS));
-  }
+    const result: string[] = [];
+    for (let i = 0; i < paddingTop; i++) result.push(' '.repeat(TOTAL_COLS));
+    logoArt.forEach(line => result.push(line.padEnd(TOTAL_COLS, ' ').slice(0, TOTAL_COLS)));
+    for (let i = 0; i < paddingBottom; i++) result.push(' '.repeat(TOTAL_COLS));
+    
+    return result;
+  }, [visibleShowLogo, windowHeight]);
 
-  const handlePrevDay = () => {
-    const newDate = new Date(viewDate);
-    newDate.setDate(newDate.getDate() - 1);
-    setViewDate(newDate);
-  };
+  // Оптимизация: мемоизация коллбеков
+  const handlePrevDay = useCallback(() => {
+    setViewDate(prev => {
+      const newDate = new Date(prev);
+      newDate.setDate(newDate.getDate() - 1);
+      return newDate;
+    });
+  }, []);
 
-  const handleNextDay = () => {
-    const newDate = new Date(viewDate);
-    newDate.setDate(newDate.getDate() + 1);
-    setViewDate(newDate);
-  };
+  const handleNextDay = useCallback(() => {
+    setViewDate(prev => {
+      const newDate = new Date(prev);
+      newDate.setDate(newDate.getDate() + 1);
+      return newDate;
+    });
+  }, []);
 
-  const adjustTimePart = (part: 'hours' | 'minutes' | 'seconds', amount: number) => {
+  const adjustTimePart = useCallback((part: 'hours' | 'minutes' | 'seconds', amount: number) => {
     setIsMocked(true);
     setCurrentTime(prev => {
       const next = new Date(prev);
@@ -236,15 +250,15 @@ function App() {
       if (part === 'seconds') next.setSeconds(next.getSeconds() + amount);
       return next;
     });
-  };
+  }, []);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     const now = new Date();
     setCurrentTime(now);
     setViewDate(now);
     setIsMocked(false);
     setIsTimeEditing(false);
-  };
+  }, []);
 
   return (
     <div className="board">
@@ -285,7 +299,6 @@ function App() {
             )}
           </div>
           
-
           <div className="spacer-btn"></div>
         </div>
         
@@ -308,16 +321,11 @@ function App() {
       <div className="board-body" ref={boardBodyRef}>
         {visibleShowLogo ? (
           logoRows.map((str, rowIndex) => (
-             <div className="row" key={`logo-${rowIndex}`}>
-                <div className="col time-col"><FlipText text={str.slice(OFFSET_TIME, OFFSET_GROUP)} length={TIME_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_TIME} /></div>
-                <div className="col group-col"><FlipText text={str.slice(OFFSET_GROUP, OFFSET_ROOM)} length={GROUP_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_GROUP} /></div>
-                <div className="col room-col"><FlipText text={str.slice(OFFSET_ROOM, OFFSET_STATUS)} length={ROOM_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_ROOM} /></div>
-                <div className="col status-col"><FlipText text={str.slice(OFFSET_STATUS)} length={STATUS_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_STATUS} /></div>
-             </div>
+             <MemoizedLogoRow key={`logo-${rowIndex}`} str={str} rowIndex={rowIndex} flipTrigger={flipTrigger} />
           ))
         ) : (
           rows.map((lesson, index) => (
-            <FlipRow
+            <MemoizedFlipRow
               key={index}
               lesson={lesson}
               currentTime={snapshotTime}
@@ -331,7 +339,17 @@ function App() {
   );
 }
 
-// Компоненты FlipRow, FlipText, FlipChar остаются без изменений
+// --- МЕМОИЗИРОВАННЫЕ КОМПОНЕНТЫ ДЛЯ ОПТИМИЗАЦИИ ---
+
+const MemoizedLogoRow = memo(({ str, rowIndex, flipTrigger }: { str: string, rowIndex: number, flipTrigger: number }) => (
+  <div className="row">
+    <div className="col time-col"><FlipText text={str.slice(OFFSET_TIME, OFFSET_GROUP)} length={TIME_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_TIME} /></div>
+    <div className="col group-col"><FlipText text={str.slice(OFFSET_GROUP, OFFSET_ROOM)} length={GROUP_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_GROUP} /></div>
+    <div className="col room-col"><FlipText text={str.slice(OFFSET_ROOM, OFFSET_STATUS)} length={ROOM_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_ROOM} /></div>
+    <div className="col status-col"><FlipText text={str.slice(OFFSET_STATUS)} length={STATUS_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_STATUS} /></div>
+  </div>
+));
+
 interface FlipRowProps {
   lesson: Lesson | null;
   currentTime: Date;
@@ -339,7 +357,7 @@ interface FlipRowProps {
   index: number;
 }
 
-function FlipRow({ lesson, currentTime, flipTrigger, index }: FlipRowProps) {
+const MemoizedFlipRow = memo(({ lesson, currentTime, flipTrigger, index }: FlipRowProps) => {
   const [visibleTime, setVisibleTime] = useState<Date>(currentTime);
   const timeRef = useRef(currentTime);
 
@@ -396,7 +414,7 @@ function FlipRow({ lesson, currentTime, flipTrigger, index }: FlipRowProps) {
       </div>
     </div>
   );
-}
+});
 
 interface FlipTextProps {
   text: string;
@@ -407,7 +425,7 @@ interface FlipTextProps {
   charOffset: number;
 }
 
-function FlipText({ text, length, forceEmpty, flipTrigger, rowIndex, charOffset }: FlipTextProps) {
+const FlipText = memo(({ text, length, forceEmpty, flipTrigger, rowIndex, charOffset }: FlipTextProps) => {
   const padded = forceEmpty
     ? ' '.repeat(length)
     : text.padEnd(length, ' ').slice(0, length);
@@ -425,7 +443,7 @@ function FlipText({ text, length, forceEmpty, flipTrigger, rowIndex, charOffset 
       ))}
     </>
   );
-}
+});
 
 interface FlipCharProps {
   targetChar: string;
@@ -434,7 +452,7 @@ interface FlipCharProps {
   flipTrigger: number;
 }
 
-function FlipChar({ targetChar, absoluteCharIndex, rowIndex, flipTrigger }: FlipCharProps) {
+const FlipChar = memo(({ targetChar, absoluteCharIndex, rowIndex, flipTrigger }: FlipCharProps) => {
   const [currentChar, setCurrentChar] = useState(targetChar);
   const [nextChar, setNextChar] = useState(targetChar);
   const [isFlipping, setIsFlipping] = useState(false);
@@ -493,6 +511,6 @@ function FlipChar({ targetChar, absoluteCharIndex, rowIndex, flipTrigger }: Flip
       </span>
     </span>
   );
-}
+});
 
 export default App;

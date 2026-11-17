@@ -17,7 +17,7 @@
   --row-gap: 0.15vw;
   --col-gap: 2.8vw;
 
-   --cell-total-w: calc(var(--cell-w) + 2 * var(--cell-mx));
+  --cell-total-w: calc(var(--cell-w) + 2 * var(--cell-mx));
 
   --time-w:   calc(5  * var(--cell-total-w));
   --group-w:  calc(5  * var(--cell-total-w));
@@ -60,12 +60,11 @@ body, html {
   padding-bottom: 0.5vw;
 }
 
-/* Контейнер для часов и кнопки сброса */
 .time-section {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 5vw; /* Фиксированная высота предотвращает сдвиг интерфейса */
+  height: 7vw; 
   margin-bottom: 0.5vw;
 }
 
@@ -77,7 +76,6 @@ body, html {
   align-items: center;
 }
 
-/* Невидимый блок справа, чтобы уровновесить кнопку слева и центрировать часы */
 .spacer-btn {
   width: 3vw;
   height: 3vw;
@@ -85,34 +83,6 @@ body, html {
   visibility: hidden;
 }
 
-/* Кнопка сброса (иконка часов) */
-.reset-btn {
-  background: transparent; /* Черный/прозрачный фон */
-  color: rgb(171, 0, 234); /* Фиолетовая иконка */
-  border: none; /* Убрали края */
-  border-radius: 8px;
-  width: 3vw;
-  height: 3vw;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  transition: background 0.2s;
-  padding: 0;
-  margin-right: 2vw; /* Отступ от часов */
-}
-
-.reset-btn svg {
-  width: 80%;
-  height: 80%;
-}
-
-/* При наведении фон становится серым */
-.reset-btn:hover {
-  background: #333; 
-}
-
-/* Часы (фиолетовые) */
 .clock-display {
   font-size: var(--header-fs);
   font-weight: 700;
@@ -149,7 +119,6 @@ body, html {
   padding-bottom: 0.2vw;
 }
 
-/* Стрелки времени (черно-белые) */
 .arrow-btn {
   background: transparent;
   color: #fff;
@@ -184,7 +153,6 @@ body, html {
   text-align: center;
 }
 
-/* Кнопки навигации по датам (черно-белые) */
 .nav-btn {
   background: #1a1a1a;
   color: #fff;
@@ -206,33 +174,31 @@ body, html {
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
-
 .reset-btn {
-  background: #000;
-  color:rgba(171, 0, 234);
-  border-width: 0px;
+  background: transparent;
+  color: rgb(171, 0, 234);
+  border: none;
+  border-radius: 8px;
   width: 3vw;
   height: 3vw;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s;
   padding: 0;
+  margin-right: 2vw;
 }
 
 .reset-btn svg {
-  width: 60%;
-  height: 60%;
+  width: 80%;
+  height: 80%;
 }
 
 .reset-btn:hover {
-  background: #1a1a1a;
-  color:rgba(171, 0, 234, 0.5);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  background: #333; 
 }
 
-/* Красная линия над столбцами */
 .board-header {
   display: flex;
   background: #1a1a1a;
@@ -308,7 +274,11 @@ body, html {
   font-size: var(--cell-fs);
   color: #e8e8e8;
   line-height: 1;
-  perspective: 600px; 
+  perspective: 600px;
+  
+  /* Оптимизация рендеринга GPU */
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .cell::before {
@@ -345,6 +315,7 @@ body, html {
   height: 50%;
   overflow: hidden;
   background: #222;
+  backface-visibility: hidden;
 }
 
 .char {
@@ -368,7 +339,6 @@ body, html {
   transform-origin: bottom;
   border-radius: 2px 2px 0 0;
   transform: rotateX(90deg);
-  backface-visibility: hidden; 
 }
 .top-flap .char { transform: translateY(var(--char-y-offset)); }
 
@@ -378,7 +348,6 @@ body, html {
   transform-origin: top;
   border-radius: 0 0 2px 2px;
   transform: rotateX(-90deg);
-  backface-visibility: hidden;
 }
 .bottom-flap .char { transform: translateY(calc(-50% + var(--char-y-offset))); }
 
@@ -421,7 +390,6 @@ body, html {
   opacity: 0.3;
 }
 
-/* Статус - фиолетовый */
 .status-col .half:not(.empty) .char {
   color: rgb(171, 0, 234);
   text-shadow: 0 2px 2px rgba(0, 0, 0, 0.9), 0 0 10px rgba(171, 0, 234, 0.7);
