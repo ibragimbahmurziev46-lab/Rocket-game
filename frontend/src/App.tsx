@@ -77,14 +77,12 @@ function App() {
     return params.has('mockTime') || params.has('mockDate');
   });
   
-  // Оптимизация: отслеживание ресайза
   useEffect(() => {
     const handleResize = () => setWindowHeight(window.innerHeight);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Оптимизация: авто-скролл
   useEffect(() => {
     const scrollResetTimer = setInterval(() => {
       if (boardBodyRef.current) {
@@ -109,7 +107,6 @@ function App() {
     return () => document.removeEventListener('visibilitychange', onVisible);
   }, []);
 
-  // Часы
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(prev => {
@@ -123,7 +120,6 @@ function App() {
     return () => clearInterval(timer);
   }, [isMocked]);
 
-  // Оптимизация: загрузка данных зависит только от viewDate, а не от времени
   const dateString = useMemo(() => formatDate(viewDate), [viewDate]);
 
   useEffect(() => {
@@ -140,7 +136,7 @@ function App() {
     fetchData();
     const fetchTimer = setInterval(fetchData, FLIP_INTERVAL_MS);
     return () => clearInterval(fetchTimer);
-  }, [dateString]); // Зависимость исправлена
+  }, [dateString]);
 
   const [snapshotTime, setSnapshotTime] = useState<Date>(currentTime);
   const [snapshotLessons, setSnapshotLessons] = useState<Lesson[]>([]);
@@ -193,7 +189,6 @@ function App() {
     return () => clearTimeout(timer);
   }, [flipTrigger, isScheduleEmpty]);
 
-  // Оптимизация: мемоизация логотипа
   const logoRows = useMemo(() => {
     if (!visibleShowLogo) return [];
     
@@ -224,7 +219,6 @@ function App() {
     return result;
   }, [visibleShowLogo, windowHeight]);
 
-  // Оптимизация: мемоизация коллбеков
   const handlePrevDay = useCallback(() => {
     setViewDate(prev => {
       const newDate = new Date(prev);
@@ -339,14 +333,14 @@ function App() {
   );
 }
 
-// --- МЕМОИЗИРОВАННЫЕ КОМПОНЕНТЫ ДЛЯ ОПТИМИЗАЦИИ ---
+// --- МЕМОИЗИРОВАННЫЕ КОМПОНЕНТЫ ---
 
 const MemoizedLogoRow = memo(({ str, rowIndex, flipTrigger }: { str: string, rowIndex: number, flipTrigger: number }) => (
   <div className="row">
-    <div className="col time-col"><FlipText text={str.slice(OFFSET_TIME, OFFSET_GROUP)} length={TIME_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_TIME} /></div>
-    <div className="col group-col"><FlipText text={str.slice(OFFSET_GROUP, OFFSET_ROOM)} length={GROUP_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_GROUP} /></div>
-    <div className="col room-col"><FlipText text={str.slice(OFFSET_ROOM, OFFSET_STATUS)} length={ROOM_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_ROOM} /></div>
-    <div className="col status-col"><FlipText text={str.slice(OFFSET_STATUS)} length={STATUS_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_STATUS} /></div>
+    <div className="col time-col"><FlipText text={str.slice(OFFSET_TIME, OFFSET_GROUP)} length={TIME_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_TIME} isRowVisible={true} /></div>
+    <div className="col group-col"><FlipText text={str.slice(OFFSET_GROUP, OFFSET_ROOM)} length={GROUP_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_GROUP} isRowVisible={true} /></div>
+    <div className="col room-col"><FlipText text={str.slice(OFFSET_ROOM, OFFSET_STATUS)} length={ROOM_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_ROOM} isRowVisible={true} /></div>
+    <div className="col status-col"><FlipText text={str.slice(OFFSET_STATUS)} length={STATUS_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_STATUS} isRowVisible={true} /></div>
   </div>
 ));
 
@@ -359,7 +353,22 @@ interface FlipRowProps {
 
 const MemoizedFlipRow = memo(({ lesson, currentTime, flipTrigger, index }: FlipRowProps) => {
   const [visibleTime, setVisibleTime] = useState<Date>(currentTime);
+  const [isRowVisible, setIsRowVisible] = useState(false);
+  const rowRef = useRef<HTMLDivElement>(null);
   const timeRef = useRef(currentTime);
+
+  // Оптимизация: Отслеживаем, видна ли строка на экране
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsRowVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 } // Строка считается видимой, если показана хотя бы на 10%
+    );
+    
+    if (rowRef.current) observer.observe(rowRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     timeRef.current = currentTime;
@@ -379,11 +388,11 @@ const MemoizedFlipRow = memo(({ lesson, currentTime, flipTrigger, index }: FlipR
 
   if (lesson === null) {
     return (
-      <div className="row">
-        <div className="col time-col"><FlipText text="" length={TIME_LEN} forceEmpty flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_TIME} /></div>
-        <div className="col group-col"><FlipText text="" length={GROUP_LEN} forceEmpty flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_GROUP} /></div>
-        <div className="col room-col"><FlipText text="" length={ROOM_LEN} forceEmpty flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_ROOM} /></div>
-        <div className="col status-col"><FlipText text="" length={STATUS_LEN} forceEmpty flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_STATUS} /></div>
+      <div className="row" ref={rowRef}>
+        <div className="col time-col"><FlipText text="" length={TIME_LEN} forceEmpty flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_TIME} isRowVisible={isRowVisible} /></div>
+        <div className="col group-col"><FlipText text="" length={GROUP_LEN} forceEmpty flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_GROUP} isRowVisible={isRowVisible} /></div>
+        <div className="col room-col"><FlipText text="" length={ROOM_LEN} forceEmpty flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_ROOM} isRowVisible={isRowVisible} /></div>
+        <div className="col status-col"><FlipText text="" length={STATUS_LEN} forceEmpty flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_STATUS} isRowVisible={isRowVisible} /></div>
       </div>
     );
   }
@@ -393,7 +402,7 @@ const MemoizedFlipRow = memo(({ lesson, currentTime, flipTrigger, index }: FlipR
   const isOngoing = visibleTime >= start && visibleTime <= end;
 
   return (
-    <div className="row">
+    <div className="row" ref={rowRef}>
       <div className="col time-col">
         <FlipText
           text={start.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
@@ -401,16 +410,17 @@ const MemoizedFlipRow = memo(({ lesson, currentTime, flipTrigger, index }: FlipR
           flipTrigger={flipTrigger}
           rowIndex={index}
           charOffset={OFFSET_TIME}
+          isRowVisible={isRowVisible}
         />
       </div>
       <div className="col group-col">
-        <FlipText text={lesson.group} length={GROUP_LEN} flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_GROUP} />
+        <FlipText text={lesson.group} length={GROUP_LEN} flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_GROUP} isRowVisible={isRowVisible} />
       </div>
       <div className="col room-col">
-        <FlipText text={lesson.room} length={ROOM_LEN} flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_ROOM} />
+        <FlipText text={lesson.room} length={ROOM_LEN} flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_ROOM} isRowVisible={isRowVisible} />
       </div>
       <div className="col status-col">
-        <FlipText text={isOngoing ? 'ИДЕТ' : ''} length={STATUS_LEN} flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_STATUS} />
+        <FlipText text={isOngoing ? 'ИДЕТ' : ''} length={STATUS_LEN} flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_STATUS} isRowVisible={isRowVisible} />
       </div>
     </div>
   );
@@ -423,9 +433,10 @@ interface FlipTextProps {
   flipTrigger: number;
   rowIndex: number;
   charOffset: number;
+  isRowVisible: boolean;
 }
 
-const FlipText = memo(({ text, length, forceEmpty, flipTrigger, rowIndex, charOffset }: FlipTextProps) => {
+const FlipText = memo(({ text, length, forceEmpty, flipTrigger, rowIndex, charOffset, isRowVisible }: FlipTextProps) => {
   const padded = forceEmpty
     ? ' '.repeat(length)
     : text.padEnd(length, ' ').slice(0, length);
@@ -439,6 +450,7 @@ const FlipText = memo(({ text, length, forceEmpty, flipTrigger, rowIndex, charOf
           absoluteCharIndex={charOffset + i}
           rowIndex={rowIndex}
           flipTrigger={flipTrigger}
+          isRowVisible={isRowVisible}
         />
       ))}
     </>
@@ -450,17 +462,25 @@ interface FlipCharProps {
   absoluteCharIndex: number;
   rowIndex: number;
   flipTrigger: number;
+  isRowVisible: boolean;
 }
 
-const FlipChar = memo(({ targetChar, absoluteCharIndex, rowIndex, flipTrigger }: FlipCharProps) => {
+const FlipChar = memo(({ targetChar, absoluteCharIndex, rowIndex, flipTrigger, isRowVisible }: FlipCharProps) => {
   const [currentChar, setCurrentChar] = useState(targetChar);
   const [nextChar, setNextChar] = useState(targetChar);
   const [isFlipping, setIsFlipping] = useState(false);
   const targetRef = useRef(targetChar);
+  
+  // Ref для хранения текущего символа, чтобы не добавлять его в зависимости useEffect
+  const currentCharRef = useRef(currentChar);
 
   useEffect(() => {
     targetRef.current = targetChar;
   }, [targetChar]);
+
+  useEffect(() => {
+    currentCharRef.current = currentChar;
+  }, [currentChar]);
 
   useEffect(() => {
     if (flipTrigger === 0) {
@@ -469,6 +489,20 @@ const FlipChar = memo(({ targetChar, absoluteCharIndex, rowIndex, flipTrigger }:
       return;
     }
 
+    // Оптимизация 1: Если строка не видна, обновляем символ мгновенно без анимации
+    if (!isRowVisible) {
+      setCurrentChar(targetRef.current);
+      setNextChar(targetRef.current);
+      return;
+    }
+
+    // Оптимизация 2: Если и старый, и новый символ — пробелы, ничего не делаем
+    // (Благодаря currentCharRef мы проверяем актуальное значение без триггера ререндера)
+    if (currentCharRef.current === ' ' && targetRef.current === ' ') {
+      return; 
+    }
+
+    // Если старый — пробел, а новый — буква, анимация БУДЕТ проиграна
     const totalDelay = (rowIndex * ROW_STAGGER_MS) + (absoluteCharIndex * CHAR_STAGGER_MS);
     const half = FLIP_DURATION_MS / 2;
 
@@ -490,7 +524,9 @@ const FlipChar = memo(({ targetChar, absoluteCharIndex, rowIndex, flipTrigger }:
       clearTimeout(swapTimer);
       clearTimeout(endTimer);
     };
-  }, [flipTrigger, rowIndex, absoluteCharIndex]);
+    // ВАЖНО: Убрали currentChar из зависимостей! 
+    // Эффект сработает только при изменении flipTrigger (или видимости строки)
+  }, [flipTrigger, rowIndex, absoluteCharIndex, isRowVisible]);
 
   const isCurrentEmpty = currentChar === ' ';
   const isNextEmpty = nextChar === ' ';
