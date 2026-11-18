@@ -195,12 +195,16 @@ def fetch_week_from_api():
     for c in unique_classes.values():
         if not c: continue
         
-        # ЗАЩИТА ОТ NULL ДЛЯ ВЛОЖЕННЫХ ОБЪЕКТОВ
+        # ЗАЩИТА ОТ NULL
         raw_classroom = c.get("classroom")
         raw_room_name = raw_classroom.get("name") if raw_classroom else "—"
         
         raw_learning_group = c.get("learningGroup")
         group_name = raw_learning_group.get("name", "—") if raw_learning_group else "—"
+        
+        # ФИЛЬТР: Если нет названия группы или кабинета, пропускаем
+        if raw_room_name == "—" or group_name == "—":
+            continue
         
         date_str = c.get("from", "")[:10]
         if not date_str: continue
