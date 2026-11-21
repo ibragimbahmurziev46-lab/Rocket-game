@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
 import './App.css';
 
 interface Lesson {
@@ -16,7 +16,7 @@ const ROW_STAGGER_MS = 120;
 const CHAR_STAGGER_MS = 25;
 
 const TIME_LEN = 5;
-const GROUP_LEN = 5; 
+const GROUP_LEN = 6; 
 const ROOM_LEN = 14;
 const STATUS_LEN = 5;
 
@@ -63,7 +63,6 @@ const getInitialDate = (): Date => {
 
 function App() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [isActuallyEmpty, setIsActuallyEmpty] = useState(false);
   const [currentTime, setCurrentTime] = useState<Date>(getInitialTime);
   const [viewDate, setViewDate] = useState<Date>(getInitialDate);
   const [flipTrigger, setFlipTrigger] = useState(0);
@@ -128,7 +127,6 @@ function App() {
         const response = await fetch(`${API_URL}?date=${dateString}`);
         const data = await response.json();
         setLessons(data.schedule || []);
-        setIsActuallyEmpty(data.is_empty !== undefined ? data.is_empty : (data.schedule || []).length === 0);
       } catch (error) {
         console.error('Ошибка загрузки расписания:', error);
       }
@@ -192,29 +190,59 @@ function App() {
   const logoRows = useMemo(() => {
     if (!visibleShowLogo) return [];
     
+    // Используем ваш массив
     const logoArt = [
-      " ███ ██████  █ █  █ ███ █████",
-      "  █    █  █  █ █  █ █  ██   █",
-      "  █    █  ████ █  █ ███ █ █ █",
-      "  █    █  █  █ █  █ █  ██   █",
-      " ███   █  █  █  ██  ███ █████",
       "",
+      " ███ █████  █  █ █  █ ███  ",
+      "  █    █    █  █ █  █ █  █ ",
+      "  █    █    ████ █  █ ███  ",
+      "  █    █    █  █ █  █ █  █ ",
+      " ███   █    █  █  ██  ███  ",
+      "",
+      "",
+      " █   █  ██   ██   ██   ███ ",
+      " ██ ██ █  █ █    █  █ █    ",
+      " █ █ █ ████ █ ██ ████  ██  ",
+      " █   █ █  █ █  █ █  █    █ ",
+      " █   █ █  █  ██  █  █ ███  ",
+      ""
     ];
-    const cellHeightVw = 3.4; 
+    
+    const cellHeightVw = 3.5; 
     const rowGapVw = 0.15;    
     const totalRowHeightVw = cellHeightVw + rowGapVw;
     const pixelsPerVw = window.innerWidth / 100;
     const rowHeightPx = totalRowHeightVw * pixelsPerVw;
+    
     const headerHeightPx = 16 * pixelsPerVw; 
     const availableHeightPx = windowHeight - headerHeightPx;
     const totalScreenRows = Math.floor(availableHeightPx / rowHeightPx);
+    
     const paddingTop = Math.max(0, Math.floor((totalScreenRows - logoArt.length) / 2));
     const paddingBottom = Math.max(0, totalScreenRows - logoArt.length - paddingTop);
     
-    const result: string[] = [];
-    for (let i = 0; i < paddingTop; i++) result.push(' '.repeat(TOTAL_COLS));
-    logoArt.forEach(line => result.push(line.padEnd(TOTAL_COLS, ' ').slice(0, TOTAL_COLS)));
-    for (let i = 0; i < paddingBottom; i++) result.push(' '.repeat(TOTAL_COLS));
+    // Находим самую длинную строку, чтобы выровнять все остальные по ней
+    const maxLength = Math.max(...logoArt.map(l => l.length));
+    // Вычисляем единый отступ слева для всего блока
+    const paddingLeft = Math.max(0, Math.floor((TOTAL_COLS - maxLength) / 2));
+
+    const result: { text: string, isPurple: boolean }[] = [];
+    
+    // Пустые строки сверху
+    for (let i = 0; i < paddingTop; i++) result.push({ text: ' '.repeat(TOTAL_COLS), isPurple: false });
+    
+    logoArt.forEach((line, index) => {
+      // Строки с индексами 1, 2, 3, 4, 5 — это ITHUB (делаем их фиолетовыми)
+      const isPurple = index > 0 && index < 6;
+      
+      // Добавляем единый отступ слева и добиваем пробелами справа до TOTAL_COLS
+      const paddedLine = ' '.repeat(paddingLeft) + line.padEnd(TOTAL_COLS - paddingLeft, ' ');
+      
+      result.push({ text: paddedLine, isPurple });
+    });
+    
+    // Пустые строки снизу
+    for (let i = 0; i < paddingBottom; i++) result.push({ text: ' '.repeat(TOTAL_COLS), isPurple: false });
     
     return result;
   }, [visibleShowLogo, windowHeight]);
@@ -257,51 +285,52 @@ function App() {
   return (
     <div className="board">
       <div className="header-container">
-        <div className="time-section">
-          <button onClick={handleReset} className="reset-btn" title="Сбросить на текущее время">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-          </button>
+        <div className="header-group">
+          <div className="clock-row">
+            <button onClick={handleReset} className="reset-btn" title="Сбросить на текущее время">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </button>
 
-          <div className="clock-container" onClick={() => setIsTimeEditing(!isTimeEditing)}>
-            {isTimeEditing ? (
-              <div className="time-editor">
-                <div className="time-column">
-                  <button onClick={(e) => { e.stopPropagation(); adjustTimePart('hours', 1); }} className="arrow-btn">▲</button>
-                  <span className="time-val">{String(currentTime.getHours()).padStart(2, '0')}</span>
-                  <button onClick={(e) => { e.stopPropagation(); adjustTimePart('hours', -1); }} className="arrow-btn">▼</button>
+            <div className="clock-container" onClick={() => setIsTimeEditing(!isTimeEditing)}>
+              {isTimeEditing ? (
+                <div className="time-editor">
+                  <div className="time-column">
+                    <button onClick={(e) => { e.stopPropagation(); adjustTimePart('hours', 1); }} className="arrow-btn">▲</button>
+                    <span className="time-val">{String(currentTime.getHours()).padStart(2, '0')}</span>
+                    <button onClick={(e) => { e.stopPropagation(); adjustTimePart('hours', -1); }} className="arrow-btn">▼</button>
+                  </div>
+                  <span className="time-sep">:</span>
+                  <div className="time-column">
+                    <button onClick={(e) => { e.stopPropagation(); adjustTimePart('minutes', 1); }} className="arrow-btn">▲</button>
+                    <span className="time-val">{String(currentTime.getMinutes()).padStart(2, '0')}</span>
+                    <button onClick={(e) => { e.stopPropagation(); adjustTimePart('minutes', -1); }} className="arrow-btn">▼</button>
+                  </div>
+                  <span className="time-sep">:</span>
+                  <div className="time-column">
+                    <button onClick={(e) => { e.stopPropagation(); adjustTimePart('seconds', 1); }} className="arrow-btn">▲</button>
+                    <span className="time-val">{String(currentTime.getSeconds()).padStart(2, '0')}</span>
+                    <button onClick={(e) => { e.stopPropagation(); adjustTimePart('seconds', -1); }} className="arrow-btn">▼</button>
+                  </div>
                 </div>
-                <span className="time-sep">:</span>
-                <div className="time-column">
-                  <button onClick={(e) => { e.stopPropagation(); adjustTimePart('minutes', 1); }} className="arrow-btn">▲</button>
-                  <span className="time-val">{String(currentTime.getMinutes()).padStart(2, '0')}</span>
-                  <button onClick={(e) => { e.stopPropagation(); adjustTimePart('minutes', -1); }} className="arrow-btn">▼</button>
+              ) : (
+                <div className="clock-display">
+                  {currentTime.toLocaleTimeString('ru-RU')}
                 </div>
-                <span className="time-sep">:</span>
-                <div className="time-column">
-                  <button onClick={(e) => { e.stopPropagation(); adjustTimePart('seconds', 1); }} className="arrow-btn">▲</button>
-                  <span className="time-val">{String(currentTime.getSeconds()).padStart(2, '0')}</span>
-                  <button onClick={(e) => { e.stopPropagation(); adjustTimePart('seconds', -1); }} className="arrow-btn">▼</button>
-                </div>
-              </div>
-            ) : (
-              <div className="clock-display">
-                {currentTime.toLocaleTimeString('ru-RU')}
-              </div>
-            )}
+              )}
+            </div>
+            <div className="spacer-btn"></div>
           </div>
           
-          <div className="spacer-btn"></div>
-        </div>
-        
-        <div className="date-controls">
-          <button onClick={handlePrevDay} className="nav-btn">◀</button>
-          <span className="current-date">
-            {viewDate.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
-          </span>
-          <button onClick={handleNextDay} className="nav-btn">▶</button>
+          <div className="date-controls">
+            <button onClick={handlePrevDay} className="nav-btn">◀</button>
+            <span className="current-date">
+              {viewDate.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+            </span>
+            <button onClick={handleNextDay} className="nav-btn">▶</button>
+          </div>
         </div>
       </div>
 
@@ -314,8 +343,20 @@ function App() {
 
       <div className="board-body" ref={boardBodyRef}>
         {visibleShowLogo ? (
-          logoRows.map((str, rowIndex) => (
-             <MemoizedLogoRow key={`logo-${rowIndex}`} str={str} rowIndex={rowIndex} flipTrigger={flipTrigger} />
+          logoRows.map((rowData, rowIndex) => (
+             <div className="row logo-row" key={`logo-${rowIndex}`}>
+                {rowData.text.split('').map((char, charIndex) => (
+                  <span className={`col logo-col ${rowData.isPurple ? 'purple-char' : ''}`} key={`logo-char-${rowIndex}-${charIndex}`}>
+                    <FlipChar 
+                      targetChar={char} 
+                      absoluteCharIndex={charIndex} 
+                      rowIndex={rowIndex} 
+                      flipTrigger={flipTrigger} 
+                      isRowVisible={true} 
+                    />
+                  </span>
+                ))}
+             </div>
           ))
         ) : (
           rows.map((lesson, index) => (
@@ -335,15 +376,6 @@ function App() {
 
 // --- МЕМОИЗИРОВАННЫЕ КОМПОНЕНТЫ ---
 
-const MemoizedLogoRow = memo(({ str, rowIndex, flipTrigger }: { str: string, rowIndex: number, flipTrigger: number }) => (
-  <div className="row">
-    <div className="col time-col"><FlipText text={str.slice(OFFSET_TIME, OFFSET_GROUP)} length={TIME_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_TIME} isRowVisible={true} /></div>
-    <div className="col group-col"><FlipText text={str.slice(OFFSET_GROUP, OFFSET_ROOM)} length={GROUP_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_GROUP} isRowVisible={true} /></div>
-    <div className="col room-col"><FlipText text={str.slice(OFFSET_ROOM, OFFSET_STATUS)} length={ROOM_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_ROOM} isRowVisible={true} /></div>
-    <div className="col status-col"><FlipText text={str.slice(OFFSET_STATUS)} length={STATUS_LEN} flipTrigger={flipTrigger} rowIndex={rowIndex} charOffset={OFFSET_STATUS} isRowVisible={true} /></div>
-  </div>
-));
-
 interface FlipRowProps {
   lesson: Lesson | null;
   currentTime: Date;
@@ -357,32 +389,22 @@ const MemoizedFlipRow = memo(({ lesson, currentTime, flipTrigger, index }: FlipR
   const rowRef = useRef<HTMLDivElement>(null);
   const timeRef = useRef(currentTime);
 
-  // Оптимизация: Отслеживаем, видна ли строка на экране
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsRowVisible(entry.isIntersecting);
-      },
-      { threshold: 0.1 } // Строка считается видимой, если показана хотя бы на 10%
+      ([entry]) => setIsRowVisible(entry.isIntersecting),
+      { threshold: 0.1 }
     );
-    
     if (rowRef.current) observer.observe(rowRef.current);
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    timeRef.current = currentTime;
-  }, [currentTime]);
+  useEffect(() => { timeRef.current = currentTime; }, [currentTime]);
 
   useEffect(() => {
     if (flipTrigger === 0) return;
     const delay = index * ROW_STAGGER_MS;
     const half = FLIP_DURATION_MS / 2;
-
-    const swapTimer = setTimeout(() => {
-      setVisibleTime(timeRef.current);
-    }, delay + half);
-
+    const swapTimer = setTimeout(() => setVisibleTime(timeRef.current), delay + half);
     return () => clearTimeout(swapTimer);
   }, [flipTrigger, index]);
 
@@ -404,14 +426,7 @@ const MemoizedFlipRow = memo(({ lesson, currentTime, flipTrigger, index }: FlipR
   return (
     <div className="row" ref={rowRef}>
       <div className="col time-col">
-        <FlipText
-          text={start.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
-          length={TIME_LEN}
-          flipTrigger={flipTrigger}
-          rowIndex={index}
-          charOffset={OFFSET_TIME}
-          isRowVisible={isRowVisible}
-        />
+        <FlipText text={start.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })} length={TIME_LEN} flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_TIME} isRowVisible={isRowVisible} />
       </div>
       <div className="col group-col">
         <FlipText text={lesson.group} length={GROUP_LEN} flipTrigger={flipTrigger} rowIndex={index} charOffset={OFFSET_GROUP} isRowVisible={isRowVisible} />
@@ -437,21 +452,11 @@ interface FlipTextProps {
 }
 
 const FlipText = memo(({ text, length, forceEmpty, flipTrigger, rowIndex, charOffset, isRowVisible }: FlipTextProps) => {
-  const padded = forceEmpty
-    ? ' '.repeat(length)
-    : text.padEnd(length, ' ').slice(0, length);
-
+  const padded = forceEmpty ? ' '.repeat(length) : text.padEnd(length, ' ').slice(0, length);
   return (
     <>
       {padded.split('').map((ch, i) => (
-        <FlipChar
-          key={i}
-          targetChar={ch}
-          absoluteCharIndex={charOffset + i}
-          rowIndex={rowIndex}
-          flipTrigger={flipTrigger}
-          isRowVisible={isRowVisible}
-        />
+        <FlipChar key={i} targetChar={ch} absoluteCharIndex={charOffset + i} rowIndex={rowIndex} flipTrigger={flipTrigger} isRowVisible={isRowVisible} />
       ))}
     </>
   );
@@ -470,17 +475,10 @@ const FlipChar = memo(({ targetChar, absoluteCharIndex, rowIndex, flipTrigger, i
   const [nextChar, setNextChar] = useState(targetChar);
   const [isFlipping, setIsFlipping] = useState(false);
   const targetRef = useRef(targetChar);
-  
-  // Ref для хранения текущего символа, чтобы не добавлять его в зависимости useEffect
   const currentCharRef = useRef(currentChar);
 
-  useEffect(() => {
-    targetRef.current = targetChar;
-  }, [targetChar]);
-
-  useEffect(() => {
-    currentCharRef.current = currentChar;
-  }, [currentChar]);
+  useEffect(() => { targetRef.current = targetChar; }, [targetChar]);
+  useEffect(() => { currentCharRef.current = currentChar; }, [currentChar]);
 
   useEffect(() => {
     if (flipTrigger === 0) {
@@ -488,44 +486,25 @@ const FlipChar = memo(({ targetChar, absoluteCharIndex, rowIndex, flipTrigger, i
       setNextChar(targetRef.current);
       return;
     }
-
-    // Оптимизация 1: Если строка не видна, обновляем символ мгновенно без анимации
     if (!isRowVisible) {
       setCurrentChar(targetRef.current);
       setNextChar(targetRef.current);
       return;
     }
+    if (currentCharRef.current === ' ' && targetRef.current === ' ') return; 
 
-    // Оптимизация 2: Если и старый, и новый символ — пробелы, ничего не делаем
-    // (Благодаря currentCharRef мы проверяем актуальное значение без триггера ререндера)
-    if (currentCharRef.current === ' ' && targetRef.current === ' ') {
-      return; 
-    }
-
-    // Если старый — пробел, а новый — буква, анимация БУДЕТ проиграна
     const totalDelay = (rowIndex * ROW_STAGGER_MS) + (absoluteCharIndex * CHAR_STAGGER_MS);
     const half = FLIP_DURATION_MS / 2;
 
-    const startTimer = setTimeout(() => {
-      setNextChar(targetRef.current);
-      setIsFlipping(true);
-    }, totalDelay);
-
-    const swapTimer = setTimeout(() => {
-      setCurrentChar(targetRef.current);
-    }, totalDelay + half);
-
-    const endTimer = setTimeout(() => {
-      setIsFlipping(false);
-    }, totalDelay + FLIP_DURATION_MS);
+    const startTimer = setTimeout(() => { setNextChar(targetRef.current); setIsFlipping(true); }, totalDelay);
+    const swapTimer = setTimeout(() => { setCurrentChar(targetRef.current); }, totalDelay + half);
+    const endTimer = setTimeout(() => { setIsFlipping(false); }, totalDelay + FLIP_DURATION_MS);
 
     return () => {
       clearTimeout(startTimer);
       clearTimeout(swapTimer);
       clearTimeout(endTimer);
     };
-    // ВАЖНО: Убрали currentChar из зависимостей! 
-    // Эффект сработает только при изменении flipTrigger (или видимости строки)
   }, [flipTrigger, rowIndex, absoluteCharIndex, isRowVisible]);
 
   const isCurrentEmpty = currentChar === ' ';

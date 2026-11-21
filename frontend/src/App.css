@@ -1,30 +1,33 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&display=swap');
 
 :root {
-  --cell-w: 2.8vw;
-  --cell-h: 4vw;
-  --cell-fs: 3.4vw;
+  --cell-w: 2.7vw;
+  --cell-h: 3.5vw;
+  --cell-fs: 3.2vw;
   --cell-mx: 0.08vw;
 
   --board-pad-v: 0.4vw;
   --board-pad-h: 2vw;
 
-  --header-fs: 2.2vw;
+  --header-fs: 2.7vw;
   --colhead-fs: 1.3vw;
   --colhead-pad: 0.35vw;
 
   --row-gap: 0.15vw;
-  --col-gap: 2.8vw;
+  --col-gap: 2.7vw;
 
   --cell-total-w: calc(var(--cell-w) + 2 * var(--cell-mx));
 
   --time-w:   calc(5  * var(--cell-total-w));
-  --group-w:  calc(5  * var(--cell-total-w));
+  --group-w:  calc(6  * var(--cell-total-w));
   --room-w:   calc(14 * var(--cell-total-w));
   --status-w: calc(5  * var(--cell-total-w));
 
   --char-y-offset: 0vw; 
+  
+  /* Цвет акцента (фиолетовый) */
+  --accent-color: #b800ff;
+  --accent-glow: rgba(184, 0, 255, 0.6);
 }
 
 * {
@@ -38,7 +41,7 @@ body, html {
   color: #e8e8e8;
   font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   height: 100vh;
-  overflow: hidden;
+  overflow: hidden; 
   -webkit-font-smoothing: antialiased;
 }
 
@@ -51,154 +54,162 @@ body, html {
   overflow: hidden;
 }
 
+/* --- ШАПКА (ЧАСЫ, ДАТА, КНОПКИ) --- */
 .header-container {
+  display: flex;
+  justify-content: center; /* Центрируем весь блок шапки */
+  align-items: center;
+  padding: 0.5vw 0;
+  border-bottom: 1px solid #2a2a2a;
+  margin-bottom: 0.4vw;
+  height: 10vw; /* Фиксированная высота, чтобы календарь не прыгал */
+}
+
+.header-group {
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-bottom: 1px solid #2a2a2a;
-  margin-bottom: 0.4vw;
-  padding-bottom: 0.5vw;
+  gap: 0.8vw;
 }
 
-.time-section {
+.clock-row {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  height: 5vw; 
-  margin-bottom: 0.5vw;
+  width: 100%;
+  max-width: 32vw; 
+  margin: 0 auto;  
+  height: 4vw;    
 }
 
 .clock-container {
-  cursor: pointer;
-  user-select: none;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.spacer-btn {
-  width: 3vw;
-  height: 3vw;
-  margin-left: 2vw; 
-  visibility: hidden;
+  flex: 1;
 }
 
 .clock-display {
   font-size: var(--header-fs);
   font-weight: 700;
-  color: rgb(171, 0, 234);
+  color: var(--accent-color);
   letter-spacing: 0.06em;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 10px rgba(171, 0, 234, 0.5);
+  text-shadow: 0 0 12px var(--accent-glow);
   line-height: 1;
+  display: flex;
+  align-items: center;
 }
 
+.current-date {
+  font-size: 1.5vw;
+  color: #d0d0d0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.date-controls {
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+  height: 2.5vw; /* Фиксируем высоту, чтобы не было скачков */
+}
+
+/* Кнопка сброса (слева от часов) */
+.reset-btn {
+  background: transparent;
+  border: none;
+  color: var(--accent-color); 
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, transform 0.2s;
+  width: 2.5vw;  
+  height: 2.5vw; 
+}
+
+.reset-btn:hover {
+  color: #fff; 
+  transform: scale(1.1); 
+}
+
+.reset-btn svg {
+  width: 100%;
+  height: 100%;
+}
+.spacer-btn {
+  width: 2.5vw;
+  height: 2.5vw;
+  visibility: hidden; 
+}
+.nav-btn {
+  background: transparent;
+  border: 1px solid #444;
+  color: #e8e8e8;
+  font-size: 1.2vw;
+  padding: 0.3vw 0.8vw;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover {
+  background: #333;
+  border-color: #888;
+}
+
+/* Редактор времени (без фона и границ) */
 .time-editor {
   display: flex;
   align-items: center;
   gap: 0.5vw;
-  font-size: var(--header-fs);
-  font-weight: 700;
-  color: rgb(171, 0, 234);
-  line-height: 1;
+  background: transparent;
+  padding: 0;
+  border: none;
+  height: 100%;
 }
 
 .time-column {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 .time-val {
-  font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 10px rgba(171, 0, 234, 0.5);
+  font-size: 2.5vw; 
+  font-weight: 700;
+  color: var(--accent-color);
+  line-height: 1;
+  text-shadow: 0 0 8px var(--accent-glow);
 }
 
 .time-sep {
-  text-shadow: 0 0 10px rgba(171, 0, 234, 0.5);
-  padding-bottom: 0.2vw;
+  font-size: 2.5vw;
+  color: var(--accent-color);
+  text-shadow: 0 0 8px var(--accent-glow);
+  line-height: 1;
 }
 
+/* Увеличенные стрелки в редакторе */
 .arrow-btn {
   background: transparent;
-  color: #fff;
   border: none;
+  color: #888;
   cursor: pointer;
-  font-size: 1.5vw;
-  padding: 0;
-  width: 4vw; 
-  text-align: center;
-  transition: all 0.2s;
-  opacity: 0.7;
+  font-size: 1.5vw; 
+  padding: 0.2vw 1vw; 
+  line-height: 1;
+  transition: color 0.2s;
 }
 
 .arrow-btn:hover {
-  color: #ccc;
-  opacity: 1;
+  color: var(--accent-color);
 }
 
-.date-controls {
-  display: flex;
-  align-items: center;
-  gap: 1.5vw;
-}
-
-.current-date {
-  color: #e8e8e8;
-  font-size: calc(var(--header-fs) * 0.45);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  min-width: 18vw;
-  text-align: center;
-}
-
-.nav-btn {
-  background: #1a1a1a;
-  color: #fff;
-  border: 1px solid #fff;
-  border-radius: 8px;
-  width: 3vw; 
-  height: 3vw; 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  font-size: calc(var(--header-fs) * 0.35);
-  transition: all 0.2s;
-}
-
-.nav-btn:hover {
-  background: #fff;
-  color: #000;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-}
-
-.reset-btn {
-  background: transparent;
-  color: rgb(171, 0, 234);
-  border: none;
-  border-radius: 8px;
-  width: 3vw;
-  height: 3vw;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  transition: background 0.2s;
-  padding: 0;
-  margin-right: 2vw;
-}
-
-.reset-btn svg {
-  width: 80%;
-  height: 80%;
-}
-
-.reset-btn:hover {
-  background: #333; 
-}
-
+/* --- ЗАГОЛОВКИ СТОЛБЦОВ --- */
 .board-header {
   display: flex;
   background: #1a1a1a;
@@ -211,10 +222,11 @@ body, html {
   padding: var(--colhead-pad) 0;
   color: #d0d0d0;
   line-height: 1;
-  gap: var(--col-gap);
+  gap: var(--col-gap); 
   justify-content: center;
 }
 
+/* --- ТЕЛО ТАБЛО --- */
 .board-body {
   flex: 1;
   display: flex;
@@ -223,19 +235,19 @@ body, html {
   padding-top: 0.4vw;
   overflow-y: auto;
   scrollbar-width: none; 
-  -ms-overflow-style: none; 
 }
 
 .board-body::-webkit-scrollbar {
-  display: none;
+  display: none; 
 }
 
+/* --- СТРОКИ И КОЛОНКИ --- */
 .row {
   display: flex;
   font-size: var(--cell-fs);
   line-height: 1;
   padding: 0;
-  gap: var(--col-gap);
+  gap: var(--col-gap); 
   justify-content: center;
 }
 
@@ -253,6 +265,23 @@ body, html {
 .room-col   { width: var(--room-w); }
 .status-col { width: var(--status-w); }
 
+/* Специальный класс для строки логотипа */
+.row.logo-row {
+  gap: 0;
+  justify-content: center; /* Центрируем сетку */
+}
+
+.row.logo-row .col {
+  width: var(--cell-total-w); 
+}
+
+/* Фиолетовый цвет для верхней части логотипа (ITHUB) */
+.row.logo-row .purple-char .char {
+  color: var(--accent-color);
+  text-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* --- ЯЧЕЙКА --- */
 .cell {
   position: relative;
   display: inline-flex;
@@ -274,11 +303,7 @@ body, html {
   font-size: var(--cell-fs);
   color: #e8e8e8;
   line-height: 1;
-  perspective: 600px;
-  
-  /* Оптимизация рендеринга GPU */
-  transform: translateZ(0);
-  will-change: transform;
+  perspective: 600px; 
 }
 
 .cell::before {
@@ -315,7 +340,6 @@ body, html {
   height: 50%;
   overflow: hidden;
   background: #222;
-  backface-visibility: hidden;
 }
 
 .char {
@@ -339,6 +363,7 @@ body, html {
   transform-origin: bottom;
   border-radius: 2px 2px 0 0;
   transform: rotateX(90deg);
+  backface-visibility: hidden; 
 }
 .top-flap .char { transform: translateY(var(--char-y-offset)); }
 
@@ -348,6 +373,7 @@ body, html {
   transform-origin: top;
   border-radius: 0 0 2px 2px;
   transform: rotateX(-90deg);
+  backface-visibility: hidden;
 }
 .bottom-flap .char { transform: translateY(calc(-50% + var(--char-y-offset))); }
 
@@ -390,7 +416,8 @@ body, html {
   opacity: 0.3;
 }
 
+/* Фиолетовый цвет для статуса пары */
 .status-col .half:not(.empty) .char {
-  color: rgb(171, 0, 234);
-  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.9), 0 0 10px rgba(171, 0, 234, 0.7);
+  color: var(--accent-color);
+  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.9), 0 0 8px var(--accent-glow);
 }
