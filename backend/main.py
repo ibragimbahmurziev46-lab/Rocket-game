@@ -128,15 +128,20 @@ def load_all_groups_to_cache():
 
 
 def fetch_week_from_api():
-    """Запрашивает расписание у NewLXP сразу на всю текущую неделю."""
-    print("=== [BACKGROUND] FETCHING WEEKLY SCHEDULE FROM API ===")
+    """Запрашивает расписание у NewLXP на 3 недели (прошлая, текущая, следующая)."""
+    print("=== [BACKGROUND] FETCHING 3-WEEK SCHEDULE FROM API ===")
     
     today = datetime.now()
-    monday = today - timedelta(days=today.weekday())
-    sunday = monday + timedelta(days=6)
+    
+    # Вычисляем понедельник ПРОШЛОЙ недели
+    monday = today - timedelta(days=today.weekday() + 7)
+    # Вычисляем воскресенье СЛЕДУЮЩЕЙ недели (21 день от понедельника прошлой недели)
+    sunday = monday + timedelta(days=20)
     
     date_from = monday.strftime("%Y-%m-%d")
     date_to = sunday.strftime("%Y-%m-%d")
+    
+    print(f"=== [BACKGROUND] Fetching range: {date_from} to {date_to} ===")
     
     cache = load_all_groups_to_cache()
     if not cache:
@@ -160,10 +165,8 @@ def fetch_week_from_api():
     
     unique_classes = {}
 
-    print(f"=== [BACKGROUND] Fetching data from {date_from} to {date_to} ===")
-
     for group_name, student_ids in cache.items():
-        for student_id in student_ids[:2]:
+        for student_id in student_ids[:2]: # Берем первых 2-х студентов для скорости
             payload = {
                 "operationName": "ManyClassesForStudentProfileSchedule",
                 "variables": {
@@ -173,14 +176,14 @@ def fetch_week_from_api():
             }
 
             try:
-                resp = session.post(GRAPHQL_URL, json=payload, headers=headers, timeout=30)
+                # Увеличен таймаут, так как запрос на 3 недели тяжелее
+                resp = session.post(GRAPHQL_URL, json=payload, headers=headers, timeout=45)
                 data = resp.json()
                 
                 if "errors" not in data:
                     classes = data.get("data", {}).get("classesForStudentProfile", [])
                     if classes:
                         for c in classes:
-                            # ЗАЩИТА ОТ NULL
                             if not c or not c.get("from"): continue
                             unique_classes[c["id"]] = c
             except Exception as e:
@@ -195,14 +198,12 @@ def fetch_week_from_api():
     for c in unique_classes.values():
         if not c: continue
         
-        # ЗАЩИТА ОТ NULL
         raw_classroom = c.get("classroom")
         raw_room_name = raw_classroom.get("name") if raw_classroom else "—"
         
         raw_learning_group = c.get("learningGroup")
         group_name = raw_learning_group.get("name", "—") if raw_learning_group else "—"
         
-        # ФИЛЬТР: Если нет названия группы или кабинета, пропускаем
         if raw_room_name == "—" or group_name == "—":
             continue
         
@@ -224,7 +225,6 @@ def fetch_week_from_api():
         new_week_data[date_str].sort(key=lambda x: x["start_time"])
 
     try:
-        # Сохраняем файл
         with open(WEEK_CACHE_FILE, "w", encoding="utf-8") as f:
             json.dump(new_week_data, f, ensure_ascii=False, indent=4)
             

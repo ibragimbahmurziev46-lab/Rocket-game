@@ -1,4 +1,1556 @@
 {
+    "2026-11-09": [
+        {
+            "id": "863a2291-9720-4fd5-863b-c24cf3ac1387",
+            "group": "1Д1",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "DUBLIN"
+        },
+        {
+            "id": "ea07757a-3de6-4700-8218-d28f04fb6ab2",
+            "group": "1П1",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "Dubai"
+        },
+        {
+            "id": "5816c597-de3e-4948-960b-f0f2ff026eb5",
+            "group": "1П2",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "Istanbul"
+        },
+        {
+            "id": "bdeebbfe-7c8c-4500-89b1-f4c5c0b6087b",
+            "group": "1П3",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "Berlin"
+        },
+        {
+            "id": "cc895d0f-102b-47d0-9e99-01dbdc607150",
+            "group": "1П4",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "Seoul"
+        },
+        {
+            "id": "95649c91-59e9-485b-b1f6-ced5ea4a1395",
+            "group": "1ИБ1",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "STOCKHOLM"
+        },
+        {
+            "id": "de99e856-55ad-4956-84b3-c7ae7dbd19f4",
+            "group": "2Р1",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "Paris"
+        },
+        {
+            "id": "fb094e81-d937-47c2-b689-b4514ee96965",
+            "group": "2П1",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "Geneva"
+        },
+        {
+            "id": "63c7e9f2-3c66-4595-b5e8-8f17955aefae",
+            "group": "2ИБ1",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "CARIO"
+        },
+        {
+            "id": "b1a3752c-197a-4acd-975d-4c096a77a9df",
+            "group": "2Р2",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "7bbbaa7d-f54f-49a5-95ef-336104f63361",
+            "group": "3Д1",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "Delhi"
+        },
+        {
+            "id": "feaa028a-5819-4ee2-a9ba-c21bc59b8895",
+            "group": "3П1",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "Tokyo"
+        },
+        {
+            "id": "8f2ac892-04c1-4c80-bd6e-7bdf5d01d536",
+            "group": "3П2",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "Singapore"
+        },
+        {
+            "id": "7cfa3ea3-a5da-49e2-8120-6d252e92785c",
+            "group": "3Р1",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "938fd59b-ce9b-460c-af68-68acc24596ea",
+            "group": "3Р2",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "New York"
+        },
+        {
+            "id": "6cc7df28-1315-4709-9ea6-8df0523d0b8d",
+            "group": "4Д1",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "2bd29bbb-c31a-489a-9dfe-1eef8110620d",
+            "group": "4Р2",
+            "start_time": "2026-11-09T06:15:00.000Z",
+            "room": "MEXICO"
+        },
+        {
+            "id": "8fe8e75a-829d-4c01-be1b-3fdd2426bcc3",
+            "group": "1Д1",
+            "start_time": "2026-11-09T07:45:00.000Z",
+            "room": "LISBON"
+        },
+        {
+            "id": "63a41a07-10bf-480c-bebf-6897660b7b61",
+            "group": "1П1",
+            "start_time": "2026-11-09T07:45:00.000Z",
+            "room": "Dubai"
+        },
+        {
+            "id": "f65311a8-b86b-407a-b366-4ef63b797398",
+            "group": "1П2",
+            "start_time": "2026-11-09T07:45:00.000Z",
+            "room": "SYDNEY"
+        },
+        {
+            "id": "310180b0-1ad5-4b9a-851a-8bbd5b245052",
+            "group": "1П3",
+            "start_time": "2026-11-09T07:45:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "a989c88c-b03c-4c43-b92a-26a15472401f",
+            "group": "1П4",
+            "start_time": "2026-11-09T07:45:00.000Z",
+            "room": "CARIO"
+        },
+        {
+            "id": "a9798fa1-4a17-419f-a325-3dbba3ff98c5",
+            "group": "1ИБ1",
+            "start_time": "2026-11-09T07:45:00.000Z",
+            "room": "VIENNA"
+        },
+        {
+            "id": "0c8de0b5-f8fd-4e10-86d0-c99dda41c97a",
+            "group": "2Р1",
+            "start_time": "2026-11-09T07:45:00.000Z",
+            "room": "DUBLIN"
+        },
+        {
+            "id": "030f6d2b-4f4c-43a7-a517-62f80890e88a",
+            "group": "2П1",
+            "start_time": "2026-11-09T07:45:00.000Z",
+            "room": "New York"
+        },
+        {
+            "id": "35d4adff-423d-4669-a3a5-52102a754b2a",
+            "group": "2Р2",
+            "start_time": "2026-11-09T07:45:00.000Z",
+            "room": "Paris"
+        },
+        {
+            "id": "7525b5ed-6539-4345-bd4f-0b3d26d9f6d1",
+            "group": "3Д1",
+            "start_time": "2026-11-09T07:45:00.000Z",
+            "room": "Geneva"
+        },
+        {
+            "id": "ea725a28-01ba-43ae-9b85-7f0e72745f86",
+            "group": "3П1",
+            "start_time": "2026-11-09T07:45:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "01787a19-0c93-48cb-b121-2b889b1200d7",
+            "group": "3П2",
+            "start_time": "2026-11-09T07:45:00.000Z",
+            "room": "STOCKHOLM"
+        },
+        {
+            "id": "ef6d440d-d6b7-428c-afe6-2c0b59e7290c",
+            "group": "3Р1",
+            "start_time": "2026-11-09T07:45:00.000Z",
+            "room": "Seoul"
+        },
+        {
+            "id": "7fe53782-366a-4526-ba59-f15d142e4e89",
+            "group": "3Р2",
+            "start_time": "2026-11-09T07:45:00.000Z",
+            "room": "Delhi"
+        },
+        {
+            "id": "83da057f-11d1-4407-bb87-d59a5066963a",
+            "group": "4Д1",
+            "start_time": "2026-11-09T07:45:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "48e851b7-c8a0-47fa-88e5-bacfd660f991",
+            "group": "1Д1",
+            "start_time": "2026-11-09T09:15:00.000Z",
+            "room": "STOCKHOLM"
+        },
+        {
+            "id": "7d71e1df-81fe-47a3-9c22-884c5d7990e1",
+            "group": "1П1",
+            "start_time": "2026-11-09T09:15:00.000Z",
+            "room": "CARIO"
+        },
+        {
+            "id": "2a63d758-7795-4658-9d75-1802ef1a3176",
+            "group": "1П2",
+            "start_time": "2026-11-09T09:15:00.000Z",
+            "room": "Dubai"
+        },
+        {
+            "id": "bdc35b66-b969-46ac-86b8-b3272fc2a372",
+            "group": "1П3",
+            "start_time": "2026-11-09T09:15:00.000Z",
+            "room": "SYDNEY"
+        },
+        {
+            "id": "f53323ed-9535-4399-8e7b-2e4680614971",
+            "group": "1ИБ1",
+            "start_time": "2026-11-09T09:15:00.000Z",
+            "room": "Istanbul"
+        },
+        {
+            "id": "aca00678-d4e0-4081-867d-26dfff22ba0c",
+            "group": "1П4",
+            "start_time": "2026-11-09T09:45:00.000Z",
+            "room": "Geneva"
+        },
+        {
+            "id": "c8219ba7-64f4-480e-b2e9-ac938eecde5b",
+            "group": "2Р1",
+            "start_time": "2026-11-09T09:45:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "860b5ef0-2aa9-47d9-8e9e-de8847db470f",
+            "group": "2Д1",
+            "start_time": "2026-11-09T09:45:00.000Z",
+            "room": "Singapore"
+        },
+        {
+            "id": "3c08794d-b288-445c-b5b2-c8594b583af0",
+            "group": "2Р2",
+            "start_time": "2026-11-09T09:45:00.000Z",
+            "room": "ATHENS"
+        },
+        {
+            "id": "5af3c106-93fb-4ee9-8056-9ffa18d6c97f",
+            "group": "3Д1",
+            "start_time": "2026-11-09T09:45:00.000Z",
+            "room": "Seoul"
+        },
+        {
+            "id": "5261cf29-05cf-4327-a447-28807ee8b942",
+            "group": "3П1",
+            "start_time": "2026-11-09T09:45:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "aae759a5-b662-410a-8869-68554641c0e9",
+            "group": "3П2",
+            "start_time": "2026-11-09T09:45:00.000Z",
+            "room": "Delhi"
+        },
+        {
+            "id": "efd12487-3563-4173-8eb2-b5cdbc74dd04",
+            "group": "3Р1",
+            "start_time": "2026-11-09T09:45:00.000Z",
+            "room": "Paris"
+        },
+        {
+            "id": "afc86dbd-9b9e-41c1-b67d-f01af848b951",
+            "group": "2Р1",
+            "start_time": "2026-11-09T11:15:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "e9232df7-9e2b-4a3a-b62b-d4307f85dcf0",
+            "group": "2Д1",
+            "start_time": "2026-11-09T11:15:00.000Z",
+            "room": "Singapore"
+        },
+        {
+            "id": "084e44af-665b-404e-a617-a9254ad8bdcb",
+            "group": "3Д1",
+            "start_time": "2026-11-09T11:15:00.000Z",
+            "room": "Istanbul"
+        },
+        {
+            "id": "7c0ca1db-5d66-4813-b40a-f1ad3c75e264",
+            "group": "3ИБ1",
+            "start_time": "2026-11-09T11:15:00.000Z",
+            "room": "New York"
+        }
+    ],
+    "2026-11-10": [
+        {
+            "id": "32b0879c-5643-4edc-850a-4a39dc3544a7",
+            "group": "4Р2",
+            "start_time": "2026-11-10T06:00:00.000Z",
+            "room": "MEXICO"
+        },
+        {
+            "id": "c8dd2363-bd32-4cf9-814a-a65da50f209c",
+            "group": "1Д1",
+            "start_time": "2026-11-10T06:15:00.000Z",
+            "room": "ATHENS"
+        },
+        {
+            "id": "23a1de08-21bd-4411-8bb6-5558dda8a8f1",
+            "group": "1П1",
+            "start_time": "2026-11-10T06:15:00.000Z",
+            "room": "Geneva"
+        },
+        {
+            "id": "03a9c866-f2c8-4de2-9603-52378ab5cdbe",
+            "group": "1П2",
+            "start_time": "2026-11-10T06:15:00.000Z",
+            "room": "Berlin"
+        },
+        {
+            "id": "06dfa90d-d792-4e5c-b107-1c3e83304d39",
+            "group": "1П3",
+            "start_time": "2026-11-10T06:15:00.000Z",
+            "room": "Tokyo"
+        },
+        {
+            "id": "fb73dc42-5a9f-4e8b-8c4e-ef4fbc3aa819",
+            "group": "1П4",
+            "start_time": "2026-11-10T06:15:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "876b0476-f5c3-4b44-ba90-3cf2816e2e1d",
+            "group": "1ИБ1",
+            "start_time": "2026-11-10T06:15:00.000Z",
+            "room": "Istanbul"
+        },
+        {
+            "id": "cb88f84e-1120-4061-b8b1-6daac99c2602",
+            "group": "2Р1",
+            "start_time": "2026-11-10T06:15:00.000Z",
+            "room": "SYDNEY"
+        },
+        {
+            "id": "54b3f473-81d8-4519-b425-2dc3e41b0ec3",
+            "group": "2Д1",
+            "start_time": "2026-11-10T06:15:00.000Z",
+            "room": "Delhi"
+        },
+        {
+            "id": "8d05280b-1de6-4192-9adf-f0d94f75c53d",
+            "group": "2Р2",
+            "start_time": "2026-11-10T06:15:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "6c2fec29-c8a2-49bf-a814-5079a2b37b33",
+            "group": "3Д1",
+            "start_time": "2026-11-10T06:15:00.000Z",
+            "room": "Singapore"
+        },
+        {
+            "id": "495ebc45-1443-49f7-b0ae-3cc9b502beb2",
+            "group": "3П1",
+            "start_time": "2026-11-10T06:15:00.000Z",
+            "room": "Dubai"
+        },
+        {
+            "id": "6d7b5976-62c3-411c-9c5b-1d2ab3ddc134",
+            "group": "3ИБ1",
+            "start_time": "2026-11-10T06:15:00.000Z",
+            "room": "STOCKHOLM"
+        },
+        {
+            "id": "3dd03909-3a5e-47be-bc25-a0252cdf528f",
+            "group": "3Р1",
+            "start_time": "2026-11-10T06:15:00.000Z",
+            "room": "Paris"
+        },
+        {
+            "id": "6b446369-8753-43d1-8ea3-35fafd699291",
+            "group": "3Р2",
+            "start_time": "2026-11-10T06:15:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "bdc52060-414b-4fd0-be4b-8ac4b85ccb8c",
+            "group": "4Д1",
+            "start_time": "2026-11-10T06:15:00.000Z",
+            "room": "CARIO"
+        },
+        {
+            "id": "ec2a9571-3ea5-4e9f-a8da-57483a35f2f8",
+            "group": "1Д1",
+            "start_time": "2026-11-10T07:45:00.000Z",
+            "room": "LISBON"
+        },
+        {
+            "id": "633c4e5a-16f0-4c3a-a24e-78de6beda5a5",
+            "group": "1П1",
+            "start_time": "2026-11-10T07:45:00.000Z",
+            "room": "Berlin"
+        },
+        {
+            "id": "f4decc99-a7b3-446d-a9e9-c36467f90919",
+            "group": "1П2",
+            "start_time": "2026-11-10T07:45:00.000Z",
+            "room": "Dubai"
+        },
+        {
+            "id": "254e3d45-19b3-42e4-9a59-b42a412f95a8",
+            "group": "1П3",
+            "start_time": "2026-11-10T07:45:00.000Z",
+            "room": "DUBLIN"
+        },
+        {
+            "id": "4ca8349e-f537-4f77-a453-341927940a42",
+            "group": "1П4",
+            "start_time": "2026-11-10T07:45:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "5bbe7b38-be92-4977-95d7-038239121076",
+            "group": "1ИБ1",
+            "start_time": "2026-11-10T07:45:00.000Z",
+            "room": "Geneva"
+        },
+        {
+            "id": "ee724133-0a1b-49be-81a2-11557cdc8781",
+            "group": "2Р1",
+            "start_time": "2026-11-10T07:45:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "8b88ee4b-3eaa-484f-9de0-b0b562c929bc",
+            "group": "2Д1",
+            "start_time": "2026-11-10T07:45:00.000Z",
+            "room": "Istanbul"
+        },
+        {
+            "id": "3e89c977-f84b-4835-802b-0e8314c4d2da",
+            "group": "2П1",
+            "start_time": "2026-11-10T07:45:00.000Z",
+            "room": "SYDNEY"
+        },
+        {
+            "id": "98557be2-91d9-4f0f-b149-44e87ded4843",
+            "group": "2ИБ1",
+            "start_time": "2026-11-10T07:45:00.000Z",
+            "room": "Tokyo"
+        },
+        {
+            "id": "d76a0d6c-fbf8-4ccc-9bd8-b14c9265147e",
+            "group": "3Д1",
+            "start_time": "2026-11-10T07:45:00.000Z",
+            "room": "Singapore"
+        },
+        {
+            "id": "53bf29c9-9e67-4585-bd19-4476ad11e0d3",
+            "group": "3П1",
+            "start_time": "2026-11-10T07:45:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "31adcea9-bacf-4e2d-b6b9-ecc6516b8bc7",
+            "group": "3П2",
+            "start_time": "2026-11-10T07:45:00.000Z",
+            "room": "New York"
+        },
+        {
+            "id": "b53eeaaf-cd10-4e66-889c-0e2e570a7593",
+            "group": "3Р1",
+            "start_time": "2026-11-10T07:45:00.000Z",
+            "room": "STOCKHOLM"
+        },
+        {
+            "id": "cea64538-e7c5-4849-a8a0-d23daefed025",
+            "group": "3Р2",
+            "start_time": "2026-11-10T07:45:00.000Z",
+            "room": "Paris"
+        },
+        {
+            "id": "ce7589d0-9574-4020-9930-4c13a066565f",
+            "group": "4Д1",
+            "start_time": "2026-11-10T07:45:00.000Z",
+            "room": "CARIO"
+        },
+        {
+            "id": "e3a98fb3-141e-44cd-bc16-3469b3af71e4",
+            "group": "1Д1",
+            "start_time": "2026-11-10T09:15:00.000Z",
+            "room": "Seoul"
+        },
+        {
+            "id": "790fb242-21ca-47cf-a81e-d41f159311cc",
+            "group": "1П1",
+            "start_time": "2026-11-10T09:15:00.000Z",
+            "room": "Istanbul"
+        },
+        {
+            "id": "c5c54e81-5bf4-40be-866a-a745b76a2915",
+            "group": "1П2",
+            "start_time": "2026-11-10T09:15:00.000Z",
+            "room": "Berlin"
+        },
+        {
+            "id": "3d3310ca-0634-4748-9bc6-e755345cab5b",
+            "group": "1П3",
+            "start_time": "2026-11-10T09:15:00.000Z",
+            "room": "Dubai"
+        },
+        {
+            "id": "18f2836f-e128-476d-9eba-da4bc4ada8c6",
+            "group": "1ИБ1",
+            "start_time": "2026-11-10T09:15:00.000Z",
+            "room": "Tokyo"
+        },
+        {
+            "id": "aac2e3b1-dca7-4f5a-8738-4635f0168ee1",
+            "group": "1П4",
+            "start_time": "2026-11-10T09:45:00.000Z",
+            "room": "LISBON"
+        },
+        {
+            "id": "a4bb5054-d7bb-4af6-8753-a39afcb0b330",
+            "group": "2Р1",
+            "start_time": "2026-11-10T09:45:00.000Z",
+            "room": "Geneva"
+        },
+        {
+            "id": "adede68a-db4f-4b04-9392-40effe2012a9",
+            "group": "2Д1",
+            "start_time": "2026-11-10T09:45:00.000Z",
+            "room": "SYDNEY"
+        },
+        {
+            "id": "fec6c696-648d-4f92-ae20-8a84ae286830",
+            "group": "2П1",
+            "start_time": "2026-11-10T09:45:00.000Z",
+            "room": "New York"
+        },
+        {
+            "id": "231f7911-cfe9-42aa-bb5d-b8a79e6c0515",
+            "group": "2ИБ1",
+            "start_time": "2026-11-10T09:45:00.000Z",
+            "room": "Delhi"
+        },
+        {
+            "id": "56d88a94-44e1-459e-a633-042cdb914d97",
+            "group": "2Р2",
+            "start_time": "2026-11-10T09:45:00.000Z",
+            "room": "Paris"
+        },
+        {
+            "id": "deeb5210-242d-4b05-8182-9d2209e53ade",
+            "group": "3Д1",
+            "start_time": "2026-11-10T09:45:00.000Z",
+            "room": "STOCKHOLM"
+        },
+        {
+            "id": "89788cde-bc5d-413a-bb9f-0cb46d4d4ddc",
+            "group": "3П1",
+            "start_time": "2026-11-10T09:45:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "dde440cc-b334-4d90-93c4-ee05e91bc666",
+            "group": "3П2",
+            "start_time": "2026-11-10T09:45:00.000Z",
+            "room": "DUBLIN"
+        },
+        {
+            "id": "1aaf9aed-e671-4791-a34f-ccc487bb4519",
+            "group": "3Р2",
+            "start_time": "2026-11-10T09:45:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "d0669073-e678-4bcc-ab01-5e501a415a5d",
+            "group": "4Д1",
+            "start_time": "2026-11-10T09:45:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "77aa5926-fa8c-4801-9855-502345b88d88",
+            "group": "4П2",
+            "start_time": "2026-11-10T09:45:00.000Z",
+            "room": "Singapore"
+        },
+        {
+            "id": "a68ea89a-9be1-416b-b844-f4776d486929",
+            "group": "2П1",
+            "start_time": "2026-11-10T11:15:00.000Z",
+            "room": "New York"
+        },
+        {
+            "id": "8820f605-8f8b-4ba8-bd7a-ec40f35888d5",
+            "group": "3П1",
+            "start_time": "2026-11-10T11:15:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "3824cf79-5213-45c6-a75f-b733b99e6dd4",
+            "group": "3П2",
+            "start_time": "2026-11-10T11:15:00.000Z",
+            "room": "Singapore"
+        },
+        {
+            "id": "a6e101de-3fd7-4aa3-a67f-db9caba2d6bc",
+            "group": "3Р2",
+            "start_time": "2026-11-10T11:15:00.000Z",
+            "room": "STOCKHOLM"
+        },
+        {
+            "id": "40af9493-aa04-4786-9066-ad944e74f2b2",
+            "group": "4П2",
+            "start_time": "2026-11-10T11:15:00.000Z",
+            "room": "MEXICO"
+        }
+    ],
+    "2026-11-11": [
+        {
+            "id": "5de3c201-2fb0-4145-8c7d-1f5734301542",
+            "group": "1Д1",
+            "start_time": "2026-11-11T06:15:00.000Z",
+            "room": "ATHENS"
+        },
+        {
+            "id": "a4aab386-e4d2-41eb-ad8a-12400d0898b7",
+            "group": "1П1",
+            "start_time": "2026-11-11T06:15:00.000Z",
+            "room": "Berlin"
+        },
+        {
+            "id": "eb913d0b-3484-402e-aafc-df70a686ef80",
+            "group": "1П2",
+            "start_time": "2026-11-11T06:15:00.000Z",
+            "room": "Istanbul"
+        },
+        {
+            "id": "0eb98d4e-5b9f-42b4-a866-a0c20f18872d",
+            "group": "1П3",
+            "start_time": "2026-11-11T06:15:00.000Z",
+            "room": "Dubai"
+        },
+        {
+            "id": "e4327214-5597-4689-8251-7bbbc9ea2849",
+            "group": "1П4",
+            "start_time": "2026-11-11T06:15:00.000Z",
+            "room": "Seoul"
+        },
+        {
+            "id": "aa5d892a-d781-4730-bab2-38ae2c17a3f9",
+            "group": "1ИБ1",
+            "start_time": "2026-11-11T06:15:00.000Z",
+            "room": "CARIO"
+        },
+        {
+            "id": "37d117e5-8310-4258-a520-62d95ee2ce7c",
+            "group": "2Р1",
+            "start_time": "2026-11-11T06:15:00.000Z",
+            "room": "Paris"
+        },
+        {
+            "id": "698eea2e-00ec-4701-bc49-cf5594729399",
+            "group": "2Д1",
+            "start_time": "2026-11-11T06:15:00.000Z",
+            "room": "Geneva"
+        },
+        {
+            "id": "b57dd9b9-45d4-4ca8-97a8-e51d4435eaa5",
+            "group": "2П1",
+            "start_time": "2026-11-11T06:15:00.000Z",
+            "room": "DUBLIN"
+        },
+        {
+            "id": "27005d54-d5da-4137-a361-a9f931ed392d",
+            "group": "2Р2",
+            "start_time": "2026-11-11T06:15:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "eb1cf9f6-6281-460c-a559-5b3760977fd3",
+            "group": "3П1",
+            "start_time": "2026-11-11T06:15:00.000Z",
+            "room": "Tokyo"
+        },
+        {
+            "id": "0de53dfa-e851-46bc-9185-0b738745c11a",
+            "group": "3П2",
+            "start_time": "2026-11-11T06:15:00.000Z",
+            "room": "SYDNEY"
+        },
+        {
+            "id": "96569d5c-ee9b-4846-9c92-772b015ecdaa",
+            "group": "3ИБ1",
+            "start_time": "2026-11-11T06:15:00.000Z",
+            "room": "Delhi"
+        },
+        {
+            "id": "08f78e08-c98c-4e15-bb2d-5c2f6a287f29",
+            "group": "3Р2",
+            "start_time": "2026-11-11T06:15:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "767d8824-80bd-4053-9ee6-dcb08467a56d",
+            "group": "4Д1",
+            "start_time": "2026-11-11T06:15:00.000Z",
+            "room": "STOCKHOLM"
+        },
+        {
+            "id": "390c3fd0-3796-49f5-87d7-2390bc969230",
+            "group": "1Д1",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "VIENNA"
+        },
+        {
+            "id": "b31f9897-8fcc-4351-938e-9869333c205b",
+            "group": "1П1",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "Dubai"
+        },
+        {
+            "id": "85de7a5d-876b-446b-bed2-e79c0346e764",
+            "group": "1П2",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "Berlin"
+        },
+        {
+            "id": "b602b116-947e-4c2b-81c9-2d316a7d7a68",
+            "group": "1П3",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "Istanbul"
+        },
+        {
+            "id": "25bba158-2c36-4a15-b1cc-914041beb0bf",
+            "group": "1П4",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "5792a3d8-0589-4e77-90f0-99a0d1bc60a2",
+            "group": "1ИБ1",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "SYDNEY"
+        },
+        {
+            "id": "55f4dc68-6f56-487e-a8b6-dfab20b0fc8a",
+            "group": "2Р1",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "Seoul"
+        },
+        {
+            "id": "374bf20e-3c69-4860-bed5-a6202fca84e8",
+            "group": "2Д1",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "9b4578c1-181b-49e3-8ee5-992abc95f78f",
+            "group": "2П1",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "ATHENS"
+        },
+        {
+            "id": "3fc1a0d7-932d-4ada-9632-088251f791c2",
+            "group": "2ИБ1",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "Tokyo"
+        },
+        {
+            "id": "01962bdc-5050-417f-9785-a947350c24bf",
+            "group": "2Р2",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "DUBLIN"
+        },
+        {
+            "id": "44687bc0-c6b5-4124-a9e5-8c64c3f5f028",
+            "group": "3Д1",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "Delhi"
+        },
+        {
+            "id": "216c64ce-d121-4045-b6bb-5d3e887e3fe3",
+            "group": "3П1",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "41243e0c-6240-4310-bebb-8b4e3c30625f",
+            "group": "3П2",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "Singapore"
+        },
+        {
+            "id": "90c685c5-1475-4caf-8b83-922fbabbbf36",
+            "group": "3ИБ1",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "New York"
+        },
+        {
+            "id": "c4d25f10-e58b-4a82-8b51-dbdf7702b2a0",
+            "group": "3Р1",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "Geneva"
+        },
+        {
+            "id": "569d70c5-3450-4a26-a78c-f5e75a3fa066",
+            "group": "3Р2",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "Paris"
+        },
+        {
+            "id": "b5b94137-efeb-46f7-9b69-6e8ce75c3d17",
+            "group": "4Д1",
+            "start_time": "2026-11-11T07:45:00.000Z",
+            "room": "CARIO"
+        },
+        {
+            "id": "751eb538-89be-4ae7-a947-dcb5a5d3771a",
+            "group": "1Д1",
+            "start_time": "2026-11-11T09:15:00.000Z",
+            "room": "LISBON"
+        },
+        {
+            "id": "5ea80363-d930-4f97-8fe5-bd2c637fa297",
+            "group": "1П1",
+            "start_time": "2026-11-11T09:15:00.000Z",
+            "room": "Istanbul"
+        },
+        {
+            "id": "371a989f-844b-446b-a6a2-6c0b3d696f22",
+            "group": "1П2",
+            "start_time": "2026-11-11T09:15:00.000Z",
+            "room": "Berlin"
+        },
+        {
+            "id": "9c7bb45b-f1fa-4b01-8005-12266b8998d5",
+            "group": "1П3",
+            "start_time": "2026-11-11T09:15:00.000Z",
+            "room": "ATHENS"
+        },
+        {
+            "id": "ff4e83e0-0b0c-4413-841e-71f7f9c3d53a",
+            "group": "1ИБ1",
+            "start_time": "2026-11-11T09:15:00.000Z",
+            "room": "Dubai"
+        },
+        {
+            "id": "14031e38-fbd5-4716-b57d-8809a0eb36fa",
+            "group": "1П4",
+            "start_time": "2026-11-11T09:45:00.000Z",
+            "room": "SYDNEY"
+        },
+        {
+            "id": "91353534-1d85-4c0a-bac8-2f862e7d7fae",
+            "group": "2Р1",
+            "start_time": "2026-11-11T09:45:00.000Z",
+            "room": "DUBLIN"
+        },
+        {
+            "id": "6e47da1a-8061-48d5-8aae-f0070ec38d6c",
+            "group": "2Д1",
+            "start_time": "2026-11-11T09:45:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "4b87181f-0f20-4a6d-a08c-a56d3f51f161",
+            "group": "2П1",
+            "start_time": "2026-11-11T09:45:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "f508bed2-cd7e-4884-be31-f397cdabcf3e",
+            "group": "2ИБ1",
+            "start_time": "2026-11-11T09:45:00.000Z",
+            "room": "Seoul"
+        },
+        {
+            "id": "45131edc-95a5-44e0-9662-2e6e8b5bc421",
+            "group": "2Р2",
+            "start_time": "2026-11-11T09:45:00.000Z",
+            "room": "Delhi"
+        },
+        {
+            "id": "7fd7c4ae-d848-4459-96ba-87e0c0c825ca",
+            "group": "3Д1",
+            "start_time": "2026-11-11T09:45:00.000Z",
+            "room": "Geneva"
+        },
+        {
+            "id": "773a5176-2fa8-49f3-8a73-baaaa176caa7",
+            "group": "3П1",
+            "start_time": "2026-11-11T09:45:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "1e56d0be-dc14-4f22-9205-0f7cddab7977",
+            "group": "3П2",
+            "start_time": "2026-11-11T09:45:00.000Z",
+            "room": "STOCKHOLM"
+        },
+        {
+            "id": "d0234b37-1d50-42d6-a617-8c934199d4f0",
+            "group": "3Р1",
+            "start_time": "2026-11-11T09:45:00.000Z",
+            "room": "Paris"
+        },
+        {
+            "id": "fe2aeca4-4dbd-43e9-aef7-1095d45ab6e9",
+            "group": "3Р2",
+            "start_time": "2026-11-11T09:45:00.000Z",
+            "room": "Singapore"
+        },
+        {
+            "id": "b336d13c-a795-425b-b1f2-c3109025c1a3",
+            "group": "2Д1",
+            "start_time": "2026-11-11T11:15:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "e1677ba2-bb62-47b5-a1d7-1c0539a6b02f",
+            "group": "2ИБ1",
+            "start_time": "2026-11-11T11:15:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "ccf4c8e7-d827-491b-a02d-1794299d22c2",
+            "group": "3Д1",
+            "start_time": "2026-11-11T11:15:00.000Z",
+            "room": "Istanbul"
+        },
+        {
+            "id": "06afbc47-04a2-4351-a378-08658309ede7",
+            "group": "3П2",
+            "start_time": "2026-11-11T11:15:00.000Z",
+            "room": "New York"
+        },
+        {
+            "id": "823ec183-808e-4ac3-8908-4ff28c742c38",
+            "group": "3Р1",
+            "start_time": "2026-11-11T11:15:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "f8c8d467-3a2d-4cc8-a6f1-d5d5cf8e5f8b",
+            "group": "4П2",
+            "start_time": "2026-11-11T11:15:00.000Z",
+            "room": "Singapore"
+        }
+    ],
+    "2026-11-12": [
+        {
+            "id": "6ebd569e-e9f3-4435-8c75-87e903a055e4",
+            "group": "1Д1",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "LISBON"
+        },
+        {
+            "id": "d06d2c7a-b445-4ea4-b2d9-48d193ddbf57",
+            "group": "1П1",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "ATHENS"
+        },
+        {
+            "id": "f1c7827a-fa8b-4a39-be08-e8aabd6043a5",
+            "group": "1П2",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "Istanbul"
+        },
+        {
+            "id": "52a38775-fd86-423f-8bdd-88e89c9b0ea1",
+            "group": "1П3",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "Singapore"
+        },
+        {
+            "id": "9678a569-fe3a-47d1-b848-099251f04e73",
+            "group": "1П4",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "Tokyo"
+        },
+        {
+            "id": "1c481974-ddd9-428e-aff2-9443f60c288b",
+            "group": "1ИБ1",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "Dubai"
+        },
+        {
+            "id": "5493ba42-c9c8-4563-8de7-7e9d46eba485",
+            "group": "2Р1",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "Berlin"
+        },
+        {
+            "id": "39a52ed4-6e7f-4bc2-bd00-335ad7f717ad",
+            "group": "2Д1",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "ff769ec2-0dd1-4af4-b9be-e15dfbfe74a5",
+            "group": "2ИБ1",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "Geneva"
+        },
+        {
+            "id": "371912b8-6da4-44d8-82d5-30cffcb33d30",
+            "group": "2Р2",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "DUBLIN"
+        },
+        {
+            "id": "deb5cffd-4baf-4847-a517-806743dda970",
+            "group": "3Д1",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "STOCKHOLM"
+        },
+        {
+            "id": "ff965be7-48d2-49bf-8c9c-5b8b61cd25da",
+            "group": "3П1",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "81d9a3d4-045c-451c-b646-8c1e248d2a9c",
+            "group": "3П2",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "b9af531b-93bd-48eb-a58d-43aad8ab6c43",
+            "group": "3ИБ1",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "New York"
+        },
+        {
+            "id": "24743cab-21c2-43fe-bba7-2c519257ba47",
+            "group": "3Р2",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "Paris"
+        },
+        {
+            "id": "e6d245b4-45f2-4ccf-af13-bf1aa3f941e4",
+            "group": "4Д1",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "CARIO"
+        },
+        {
+            "id": "1ce6ce5a-22fb-4418-8607-930749fb1a63",
+            "group": "4П2",
+            "start_time": "2026-11-12T06:15:00.000Z",
+            "room": "VIENNA"
+        },
+        {
+            "id": "60f81482-f61d-458d-9344-8e478add6baa",
+            "group": "1Д1",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "STOCKHOLM"
+        },
+        {
+            "id": "159a7380-1218-4f75-a2ca-fd54597274cc",
+            "group": "1П1",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "Istanbul"
+        },
+        {
+            "id": "4d1cfc79-ca79-4f55-826f-d0347ce717ae",
+            "group": "1П2",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "Singapore"
+        },
+        {
+            "id": "1ebb8f00-e6b5-45af-996b-468fdfa9817c",
+            "group": "1П3",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "CARIO"
+        },
+        {
+            "id": "9657b4d0-1ff9-476e-a06e-bd58f72e3c80",
+            "group": "1П4",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "Delhi"
+        },
+        {
+            "id": "961a5a1f-eb9c-4651-bbe8-8902bfc490ed",
+            "group": "1ИБ1",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "Dubai"
+        },
+        {
+            "id": "9811c5e1-442e-4a07-860e-0b7ecf5a0c41",
+            "group": "2Р1",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "Paris"
+        },
+        {
+            "id": "2ac1e605-60dd-41ce-a73e-2a23dca32e84",
+            "group": "2Д1",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "DUBLIN"
+        },
+        {
+            "id": "c703077f-7484-469f-83cd-0bdb8a60cb9d",
+            "group": "2П1",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "ATHENS"
+        },
+        {
+            "id": "ec245368-62ed-4135-af1d-3ddaf9ac8fd8",
+            "group": "2ИБ1",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "Tokyo"
+        },
+        {
+            "id": "79c2421b-1a27-4356-a303-2aeeb12b0f25",
+            "group": "2Р2",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "1df7823d-e033-483a-87ac-656fd2ad6654",
+            "group": "3Д1",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "94f98ac4-67ff-4663-bb2a-f1a4dcc2361c",
+            "group": "3П1",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "Seoul"
+        },
+        {
+            "id": "8d3be975-b3b0-4a55-8217-925cc8a6262e",
+            "group": "3ИБ1",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "New York"
+        },
+        {
+            "id": "f89e054d-c4c0-4faa-ba6b-8826c16c376c",
+            "group": "3Р1",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "c0289da4-1fa5-40dd-bc63-00b4ff418ca9",
+            "group": "3Р2",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "Geneva"
+        },
+        {
+            "id": "66718668-b573-4197-be5d-31a211b5bc00",
+            "group": "4Д1",
+            "start_time": "2026-11-12T07:45:00.000Z",
+            "room": "SYDNEY"
+        },
+        {
+            "id": "28330d91-329d-4301-994e-82776290139b",
+            "group": "1Д1",
+            "start_time": "2026-11-12T09:15:00.000Z",
+            "room": "Dubai"
+        },
+        {
+            "id": "9ff1b6a5-0153-4d4d-bd73-4dd80d019c05",
+            "group": "1П1",
+            "start_time": "2026-11-12T09:15:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "c15a33e5-af72-444e-b295-975afd337e6e",
+            "group": "1П2",
+            "start_time": "2026-11-12T09:15:00.000Z",
+            "room": "DUBLIN"
+        },
+        {
+            "id": "4fc59565-b8fc-4cca-83d3-b6f734010d6a",
+            "group": "1П3",
+            "start_time": "2026-11-12T09:15:00.000Z",
+            "room": "Tokyo"
+        },
+        {
+            "id": "fa9d4c13-109a-46a7-9808-a74af0b5e36e",
+            "group": "1ИБ1",
+            "start_time": "2026-11-12T09:15:00.000Z",
+            "room": "SYDNEY"
+        },
+        {
+            "id": "a5192a75-1cf1-47b6-84ff-f0417158770d",
+            "group": "2П1",
+            "start_time": "2026-11-12T09:45:00.000Z",
+            "room": "Berlin"
+        },
+        {
+            "id": "d75b7907-1221-4068-be22-3cf69c116d6f",
+            "group": "2ИБ1",
+            "start_time": "2026-11-12T09:45:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "0b133453-ea43-462b-96df-79f10c208426",
+            "group": "2Р2",
+            "start_time": "2026-11-12T09:45:00.000Z",
+            "room": "Paris"
+        },
+        {
+            "id": "47b2c5c8-9624-4134-acd0-e5ba9f5533b1",
+            "group": "3ИБ1",
+            "start_time": "2026-11-12T09:45:00.000Z",
+            "room": "Istanbul"
+        },
+        {
+            "id": "58f5868a-a4c8-42c7-8d27-f343a856b517",
+            "group": "3Р1",
+            "start_time": "2026-11-12T09:45:00.000Z",
+            "room": "STOCKHOLM"
+        },
+        {
+            "id": "df95ffd2-2409-43ee-b976-eb3c8f6c524e",
+            "group": "3Р2",
+            "start_time": "2026-11-12T09:45:00.000Z",
+            "room": "Geneva"
+        },
+        {
+            "id": "1e8a23aa-f92b-429e-8fad-57a33c2c9bc9",
+            "group": "3ИБ1",
+            "start_time": "2026-11-12T11:15:00.000Z",
+            "room": "Istanbul"
+        },
+        {
+            "id": "9c83ef30-0a6b-4d31-9117-95ba2619f67f",
+            "group": "3Р1",
+            "start_time": "2026-11-12T11:15:00.000Z",
+            "room": "Paris"
+        },
+        {
+            "id": "7d74cf2f-0639-4883-8366-ccb78b320f9a",
+            "group": "4П2",
+            "start_time": "2026-11-12T11:15:00.000Z",
+            "room": "MEXICO"
+        }
+    ],
+    "2026-11-14": [
+        {
+            "id": "4a337919-7241-46f3-9c69-fce049cf4109",
+            "group": "1Д1",
+            "start_time": "2026-11-14T06:15:00.000Z",
+            "room": "VIENNA"
+        },
+        {
+            "id": "320ed86c-ca87-4ee1-bcf6-b922ec3371d6",
+            "group": "1П1",
+            "start_time": "2026-11-14T06:15:00.000Z",
+            "room": "CARIO"
+        },
+        {
+            "id": "4c64ae3d-9386-4b5c-ba70-82bb46cf6431",
+            "group": "1П2",
+            "start_time": "2026-11-14T06:15:00.000Z",
+            "room": "SYDNEY"
+        },
+        {
+            "id": "0e3dcb6d-cd37-4772-8ac1-8c35e443b75f",
+            "group": "1П3",
+            "start_time": "2026-11-14T06:15:00.000Z",
+            "room": "Tokyo"
+        },
+        {
+            "id": "623344e5-491a-49e5-b963-d75df281ddf2",
+            "group": "1П4",
+            "start_time": "2026-11-14T06:15:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "425bd5a8-c7fc-4326-83dd-a2a370b859e5",
+            "group": "1ИБ1",
+            "start_time": "2026-11-14T06:15:00.000Z",
+            "room": "Berlin"
+        },
+        {
+            "id": "6aacb276-8f09-4e27-9cd8-f56646751022",
+            "group": "2Д1",
+            "start_time": "2026-11-14T06:15:00.000Z",
+            "room": "Dubai"
+        },
+        {
+            "id": "8e95a22b-7a23-4e35-9e34-76683f4948af",
+            "group": "2П1",
+            "start_time": "2026-11-14T06:15:00.000Z",
+            "room": "Seoul"
+        },
+        {
+            "id": "f944a10d-86d4-4adb-8e70-a2f0d84d5a1e",
+            "group": "3Д1",
+            "start_time": "2026-11-14T06:15:00.000Z",
+            "room": "Delhi"
+        },
+        {
+            "id": "94824a4e-36ce-4916-818d-b95cb38854e7",
+            "group": "3П1",
+            "start_time": "2026-11-14T06:15:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "1cb76ad6-775a-4304-8557-67be01cf5178",
+            "group": "3П2",
+            "start_time": "2026-11-14T06:15:00.000Z",
+            "room": "Geneva"
+        },
+        {
+            "id": "8efa479b-0168-46d1-a688-e309b693b370",
+            "group": "3Р1",
+            "start_time": "2026-11-14T06:15:00.000Z",
+            "room": "Paris"
+        },
+        {
+            "id": "b176b11f-1243-490d-9fe6-9351a533b3b7",
+            "group": "3Р2",
+            "start_time": "2026-11-14T06:15:00.000Z",
+            "room": "New York"
+        },
+        {
+            "id": "d0f36708-227e-409a-9961-916c20b9b889",
+            "group": "4Д1",
+            "start_time": "2026-11-14T06:15:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "92f6ae18-55c6-4056-93b8-8ff682d6e12c",
+            "group": "1Д1",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "CARIO"
+        },
+        {
+            "id": "0593fc4c-c59a-440b-b7b2-0d9095cf688c",
+            "group": "1П1",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "DUBLIN"
+        },
+        {
+            "id": "cd829e84-d21e-4cc5-87e6-1f7578b32fcb",
+            "group": "1П2",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "Dubai"
+        },
+        {
+            "id": "01e5a7b9-897e-4456-872a-ce1026f6ff7d",
+            "group": "1П3",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "Delhi"
+        },
+        {
+            "id": "6c71c4c5-d058-4291-ae03-ecab114e5f4d",
+            "group": "1П4",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "8602e4a0-d866-41dc-8bec-b9065d954ad9",
+            "group": "1ИБ1",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "LISBON"
+        },
+        {
+            "id": "77ba0f65-9f7c-4a15-8033-620c1d6fa276",
+            "group": "2Р1",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "STOCKHOLM"
+        },
+        {
+            "id": "84feab7e-de02-4097-9de2-f08c6cc67fa1",
+            "group": "2Д1",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "Seoul"
+        },
+        {
+            "id": "fd8bf5e6-826a-4626-ada4-22650caf2cf4",
+            "group": "2П1",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "Berlin"
+        },
+        {
+            "id": "2e85754b-f06a-46cb-a9c4-331f0f8a3878",
+            "group": "2ИБ1",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "Tokyo"
+        },
+        {
+            "id": "76e4f596-6cd3-4109-a700-9f5cfc6f7a4b",
+            "group": "2Р2",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "SYDNEY"
+        },
+        {
+            "id": "b7751189-fee6-4ae0-b779-b3b35a9e8039",
+            "group": "3Д1",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "MEXICO"
+        },
+        {
+            "id": "79638825-e0bc-449e-8b07-a0c176a0add9",
+            "group": "3П1",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "82ac82ad-f6fa-4745-9b32-5059c2fdb310",
+            "group": "3П2",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "Geneva"
+        },
+        {
+            "id": "15b18c88-c945-4926-a924-292ecfd75997",
+            "group": "3ИБ1",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "New York"
+        },
+        {
+            "id": "e56de5cd-7198-486b-8cba-ef4f947bb4fa",
+            "group": "3Р1",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "Paris"
+        },
+        {
+            "id": "d4bcff79-3fa1-491c-a6a1-d7c4caa6772d",
+            "group": "3Р2",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "Istanbul"
+        },
+        {
+            "id": "9d793053-a5ac-4d22-8939-1e5702a3132a",
+            "group": "4Д1",
+            "start_time": "2026-11-14T07:45:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "6e695fb6-e9d5-47da-9066-0343c9e93676",
+            "group": "1П1",
+            "start_time": "2026-11-14T09:15:00.000Z",
+            "room": "DUBLIN"
+        },
+        {
+            "id": "20383e5b-bcd2-494a-b073-9213ccbc5778",
+            "group": "1П2",
+            "start_time": "2026-11-14T09:15:00.000Z",
+            "room": "Singapore"
+        },
+        {
+            "id": "f93e8f95-b5e8-48e4-a2fd-eab55696ee6c",
+            "group": "1П3",
+            "start_time": "2026-11-14T09:15:00.000Z",
+            "room": "STOCKHOLM"
+        },
+        {
+            "id": "758aa323-a3a6-49f9-b26f-b8b017c7957d",
+            "group": "1ИБ1",
+            "start_time": "2026-11-14T09:15:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "c225db35-b94b-4e2b-997d-e1396059ef95",
+            "group": "1П4",
+            "start_time": "2026-11-14T09:45:00.000Z",
+            "room": "Dubai"
+        },
+        {
+            "id": "ac91f21e-5a3a-4806-b328-aa6ee26f1f31",
+            "group": "2Р1",
+            "start_time": "2026-11-14T09:45:00.000Z",
+            "room": "ATHENS"
+        },
+        {
+            "id": "36c9d798-cba9-46a6-aebf-5303d76423e8",
+            "group": "2Д1",
+            "start_time": "2026-11-14T09:45:00.000Z",
+            "room": "Geneva"
+        },
+        {
+            "id": "1dd39758-7a2a-494c-9fcf-74c8843bd00c",
+            "group": "2ИБ1",
+            "start_time": "2026-11-14T09:45:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "f7cb37cc-2fa2-45c6-8143-82902f0b1bc2",
+            "group": "2Р2",
+            "start_time": "2026-11-14T09:45:00.000Z",
+            "room": "Tokyo"
+        },
+        {
+            "id": "9dd5d05d-d167-4465-b9fc-55fff161441a",
+            "group": "3Д1",
+            "start_time": "2026-11-14T09:45:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "eb4b397c-fef2-4b54-aaed-5b179df6009b",
+            "group": "3П2",
+            "start_time": "2026-11-14T09:45:00.000Z",
+            "room": "New York"
+        },
+        {
+            "id": "077ac0a3-e5a6-42a4-bd73-70dfee23bad3",
+            "group": "3Р1",
+            "start_time": "2026-11-14T09:45:00.000Z",
+            "room": "Paris"
+        },
+        {
+            "id": "8bf7b845-a470-4b88-af95-75a1696816ce",
+            "group": "3Р2",
+            "start_time": "2026-11-14T09:45:00.000Z",
+            "room": "Delhi"
+        },
+        {
+            "id": "a85db7a4-0eec-42c6-b0f7-eeed6d31ba46",
+            "group": "2Р1",
+            "start_time": "2026-11-14T11:15:00.000Z",
+            "room": "Madrid"
+        },
+        {
+            "id": "8d35cfc6-c816-445a-87fa-9e9f2c455f7a",
+            "group": "2Д1",
+            "start_time": "2026-11-14T11:15:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "cccfa74e-4f6a-4fb9-b393-6e50995ed227",
+            "group": "2ИБ1",
+            "start_time": "2026-11-14T11:15:00.000Z",
+            "room": "Brussels"
+        },
+        {
+            "id": "04daf5c5-ae57-430e-b2dd-22fd87f48994",
+            "group": "2Р2",
+            "start_time": "2026-11-14T11:15:00.000Z",
+            "room": "Delhi"
+        },
+        {
+            "id": "75e5dc89-e43b-46df-b266-f737a9e9cfb4",
+            "group": "3П2",
+            "start_time": "2026-11-14T11:15:00.000Z",
+            "room": "New York"
+        },
+        {
+            "id": "4b01e09a-ff5c-401a-8023-04e50b81fec4",
+            "group": "3Р1",
+            "start_time": "2026-11-14T11:15:00.000Z",
+            "room": "Paris"
+        }
+    ],
     "2026-11-16": [
         {
             "id": "20f7ffb7-0737-45d3-8324-9ad8ab2e8782",
@@ -1501,6 +3053,48 @@
             "group": "3Р1",
             "start_time": "2026-11-21T11:15:00.000Z",
             "room": "Paris"
+        }
+    ],
+    "2026-11-23": [
+        {
+            "id": "c444b5d2-c886-47e9-acb3-b1255e1fa16f",
+            "group": "4Д1",
+            "start_time": "2026-11-23T06:00:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "d102ffe7-c736-46a5-ade6-d59f43d19ccb",
+            "group": "4Д1",
+            "start_time": "2026-11-23T07:30:00.000Z",
+            "room": "Hong Kong"
+        }
+    ],
+    "2026-11-24": [
+        {
+            "id": "7a6bbe63-33c7-43c5-b479-763a09efe83f",
+            "group": "4Д1",
+            "start_time": "2026-11-24T06:00:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "fb3dff5f-f6f3-4aa4-9025-129946d97c5c",
+            "group": "4Д1",
+            "start_time": "2026-11-24T07:30:00.000Z",
+            "room": "Hong Kong"
+        }
+    ],
+    "2026-11-28": [
+        {
+            "id": "d19deb0a-2737-4f0f-903c-8e739ff72933",
+            "group": "4Д1",
+            "start_time": "2026-11-28T06:00:00.000Z",
+            "room": "Hong Kong"
+        },
+        {
+            "id": "ad4fdfc4-7fed-42a1-ba67-1bbfbf0abe1f",
+            "group": "4Д1",
+            "start_time": "2026-11-28T07:30:00.000Z",
+            "room": "Hong Kong"
         }
     ]
 }
