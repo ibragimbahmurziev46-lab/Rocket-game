@@ -16,8 +16,8 @@ const ROW_STAGGER_MS = 120;
 const CHAR_STAGGER_MS = 25;
 
 const TIME_LEN = 5;
-const GROUP_LEN = 6; 
-const ROOM_LEN = 14;
+const GROUP_LEN = 5; 
+const ROOM_LEN = 16;
 const STATUS_LEN = 5;
 
 const TOTAL_COLS = TIME_LEN + GROUP_LEN + ROOM_LEN + STATUS_LEN;
@@ -193,11 +193,11 @@ function App() {
     // Используем ваш массив
     const logoArt = [
       "",
-      "  ███ █████ █  █ █  █ ███  ",
-      "   █    █   █  █ █  █ █  █ ",
-      "   █    █   ████ █  █ ███  ",
-      "   █    █   █  █ █  █ █  █ ",
-      "  ███   █   █  █  ██  ███  ",
+      "  ███ █████  █  █ █  █ ███  ",
+      "   █    █    █  █ █  █ █  █ ",
+      "   █    █    ████ █  █ ███  ",
+      "   █    █    █  █ █  █ █  █ ",
+      "  ███   █    █  █  ██  ███  ",
       "",
       "",
       "  █   █  ██   ██   ██   ███ ",
