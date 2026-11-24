@@ -421,3 +421,56 @@ body, html {
   color: var(--accent-color);
   text-shadow: 0 2px 2px rgba(0, 0, 0, 0.9), 0 0 8px var(--accent-glow);
 }
+/* === Airplane animation === */
+
+.plane-flyer {
+  position: fixed;
+  top: 2vw;
+  left: 0;
+  z-index: 100;
+  pointer-events: none;
+  will-change: transform;
+  animation-duration: 10s; /* Сделали полет 10 секунд */
+  animation-timing-function: linear; /* Равномерная скорость по горизонтали */
+  animation-fill-mode: forwards;
+}
+
+.plane-flyer.ltr { animation-name: plane-fly-ltr; }
+.plane-flyer.rtl { animation-name: plane-fly-rtl; }
+
+.plane-flyer .plane {
+  display: inline-block;
+  font-size: 1.6vw;
+  line-height: 1;
+  color: var(--accent-color, #b800ff);
+  text-shadow: 0 0 0.6vw var(--accent-glow, rgba(184, 0, 255, 0.6));
+  /* Убрали статичный rotate, теперь он анимируется */
+}
+
+.plane-flyer.rtl .plane {
+  /* Для полета справа налево просто зеркалим сам самолетик */
+  transform: scaleX(-1); 
+}
+
+/* Полет слева направо: 
+   0% - задрал нос вверх (15deg)
+   50% - летит ровно (45deg)
+   100% - опустил нос вниз (75deg) */
+
+@keyframes plane-fly-ltr {
+  0%   { transform: translate(-8vw, 0) rotate(15deg); }
+  25%  { transform: translate(21vw, -0.9vw) rotate(30deg); }
+  50%  { transform: translate(50vw, -1.6vw) rotate(45deg); }
+  75%  { transform: translate(79vw, -0.9vw) rotate(60deg); }
+  100% { transform: translate(108vw, 0) rotate(75deg); }
+}
+
+/* Полет справа налево: координаты инвертированы, но углы те же (за счет scaleX(-1) на самом самолете) */
+
+@keyframes plane-fly-rtl {
+  0%   { transform: translate(108vw, 0) rotate(15deg); }
+  25%  { transform: translate(79vw, -0.9vw) rotate(30deg); }
+  50%  { transform: translate(50vw, -1.6vw) rotate(45deg); }
+  75%  { transform: translate(21vw, -0.9vw) rotate(60deg); }
+  100% { transform: translate(-8vw, 0) rotate(75deg); }
+}

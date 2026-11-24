@@ -1,3 +1,4 @@
+import { PlaneAnimation } from './PlaneAnimation';
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
 import './App.css';
 
@@ -70,6 +71,10 @@ function App() {
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const [isTimeEditing, setIsTimeEditing] = useState(false);
   const boardBodyRef = useRef<HTMLDivElement>(null);
+
+  // === PLANE: state для полёта ===
+  const [plane, setPlane] = useState<{ id: number; dir: 'ltr' | 'rtl' } | null>(null);
+  const planeIdRef = useRef(0);
   
   const [isMocked, setIsMocked] = useState<boolean>(() => {
     const params = new URLSearchParams(window.location.search);
@@ -104,6 +109,26 @@ function App() {
     };
     document.addEventListener('visibilitychange', onVisible);
     return () => document.removeEventListener('visibilitychange', onVisible);
+  }, []);
+
+  // === PLANE: планировщик вылетов (15..35 сек, случайное направление) ===
+  useEffect(() => {
+    let timeoutId: number;
+
+    const scheduleNext = () => {
+      const delay = 15000 + Math.random() * 20000; // 15..35 сек
+      timeoutId = window.setTimeout(() => {
+        planeIdRef.current += 1;
+        setPlane({
+          id: planeIdRef.current,
+          dir: Math.random() < 0.5 ? 'ltr' : 'rtl',
+        });
+        scheduleNext();
+      }, delay);
+    };
+
+    scheduleNext();
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   useEffect(() => {
@@ -284,6 +309,16 @@ function App() {
 
   return (
     <div className="board">
+      
+      {/* === PLANE: самолёт над шапкой === */}
+      {plane && (
+        <PlaneAnimation 
+          id={plane.id}
+          dir={plane.dir} 
+          onComplete={() => setPlane(null)} 
+        />
+      )}
+
       <div className="header-container">
         <div className="header-group">
           <div className="clock-row">

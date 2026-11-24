@@ -1,0 +1,84 @@
+.plane-wrapper {
+  position: fixed;
+  top: 3vw;
+  z-index: 100;
+  pointer-events: none;
+  animation-duration: 10s;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+/* Направления */
+.plane-wrapper.ltr {
+  left: -10vw;
+  animation-name: flyLTR;
+}
+
+.plane-wrapper.rtl {
+  right: -10vw;
+  animation-name: flyRTL;
+}
+
+/* Контейнер с самолетом и следом */
+.plane-body {
+  display: flex;
+  align-items: center;
+  animation: turbulence 2s ease-in-out infinite alternate;
+}
+
+/* Располагаем элементы: для LTR след слева, самолет справа */
+.ltr .plane-body {
+  flex-direction: row;
+}
+
+/* Для RTL самолет слева, след справа */
+.rtl .plane-body {
+  flex-direction: row-reverse;
+}
+
+/* Физика: поворачиваем ТОЛЬКО самолетик, чтобы не ломать след */
+.ltr .plane-svg {
+  transform: rotate(90deg); /* Нос вправо */
+}
+
+.rtl .plane-svg {
+  transform: rotate(-90deg); /* Нос влево */
+}
+
+/* Инверсионный след */
+.contrail {
+  width: 8vw;
+  height: 0.25vw;
+  border-radius: 2px;
+}
+
+/* След для LTR (тянется влево, растворяется) */
+.ltr .contrail {
+  margin-right: 0.5vw;
+  background: linear-gradient(to left, rgba(184, 0, 255, 0.8), transparent);
+}
+
+/* След для RTL (тянется вправо, растворяется) */
+.rtl .contrail {
+  margin-left: 0.5vw;
+  background: linear-gradient(to right, rgba(184, 0, 255, 0.8), transparent);
+}
+
+/* Траектория LTR: взлет, выравнивание, уход за экран */
+@keyframes flyLTR {
+  0%   { transform: translate(0, 40px) rotate(-10deg); } /* Нос вверх */
+  30%  { transform: translate(33vw, -40px) rotate(-2deg); } /* Плавный набор */
+  100% { transform: translate(110vw, -60px) rotate(0deg); } /* Улетает ровно */
+}
+
+/* Траектория RTL: инвертированные углы */
+@keyframes flyRTL {
+  0%   { transform: translate(0, 40px) rotate(10deg); }
+  30%  { transform: translate(-33vw, -40px) rotate(2deg); }
+  100% { transform: translate(-110vw, -60px) rotate(0deg); }
+}
+
+@keyframes turbulence {
+  0%   { transform: translateY(-3px); }
+  100% { transform: translateY(3px); }
+}
