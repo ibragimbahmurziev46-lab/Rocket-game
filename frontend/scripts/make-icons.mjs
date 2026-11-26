@@ -1,0 +1,133 @@
+/* Генератор иконок: SVG зашит внутри, внешние файлы не нужны.
+   Запуск: npm run icons  (или node scripts/make-icons.mjs) */
+import { mkdirSync, writeFileSync, statSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+let sharp;
+let pngToIco;
+try {
+  sharp = (await import('sharp')).default;
+  pngToIco = (await import('png-to-ico')).default;
+} catch {
+  console.error('Не установлены зависимости. Выполни: npm i -D sharp png-to-ico');
+  process.exit(1);
+}
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const PUBLIC = join(ROOT, 'public');
+const BUILD = join(ROOT, 'build');
+
+const BG = '#0b1026';
+
+const SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a1030"/>
+      <stop offset="1" stop-color="#05070f"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.3" cy="0.25" r="0.85">
+      <stop offset="0" stop-color="#1d4ed8" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#7c3aed" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="0.8" cy="0.8" r="0.7">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#a78bfa" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#e6ebf0"/>
+      <stop offset="1" stop-color="#90a4ae"/>
+    </linearGradient>
+    <linearGradient id="nose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff6b6b"/>
+      <stop offset="1" stop-color="#b71c1c"/>
+    </linearGradient>
+    <linearGradient id="flame" x1="1" y1="0" x2="0" y2="0">
+      <stop offset="0" stop-color="#fff3c4"/>
+      <stop offset="0.45" stop-color="#ffb347"/>
+      <stop offset="1" stop-color="#ff5722" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="112" fill="url(#glow)"/>
+  <rect width="512" height="512" rx="112" fill="url(#glow2)"/>
+
+  <g fill="#9bd7ff">
+    <circle cx="96" cy="120" r="4" opacity="0.85"/>
+    <circle cx="420" cy="96" r="3" opacity="0.6"/>
+    <circle cx="380" cy="420" r="5" opacity="0.7"/>
+    <circle cx="120" cy="400" r="3" opacity="0.5"/>
+    <circle cx="450" cy="250" r="3" opacity="0.55"/>
+    <circle cx="250" cy="70" r="2.5" opacity="0.45"/>
+    <circle cx="70" cy="270" r="2.5" opacity="0.4"/>
+  </g>
+
+  <g transform="translate(256 256) rotate(-45) scale(6)">
+    <path d="M-29 0 L-74 -12 L-74 12 Z" fill="url(#flame)"/>
+    <path d="M-22 -6 L-29 -9 L-29 9 L-22 6 Z" fill="#37474f"/>
+    <path d="M-10 -8 L-22 -18 L-18 -8 Z" fill="#e53935"/>
+    <path d="M-10 8 L-22 18 L-18 8 Z" fill="#e53935"/>
+    <path d="M14 -8 L-18 -8 Q-23 -8 -23 0 Q-23 8 -18 8 L14 8 Z" fill="url(#body)"/>
+    <path d="M14 -8 Q26 -4 32 0 Q26 4 14 8 Z" fill="url(#nose)"/>
+    <rect x="11" y="-8" width="3" height="16" fill="#263238"/>
+    <circle cx="0" cy="0" r="5.2" fill="#37474f"/>
+    <circle cx="0" cy="0" r="3.8" fill="#38bdf8"/>
+    <circle cx="1.2" cy="-1.2" r="1.3" fill="#ffffff"/>
+  </g>
+</svg>
+`;
+
+const src = Buffer.from(SVG, 'utf8');
+const made = [];
+
+async function png(size, file, dir) {
+  const target = join(dir, file);
+  await sharp(src, { density: 384 }).resize(size, size).png().toFile(target);
+  made.push(target);
+}
+
+try {
+  mkdirSync(PUBLIC, { recursive: true });
+  mkdirSync(BUILD, { recursive: true });
+
+  writeFileSync(join(PUBLIC, 'icon.svg'), SVG, 'utf8');
+  made.push(join(PUBLIC, 'icon.svg'));
+
+  await png(192, 'pwa-192.png', PUBLIC);
+  await png(512, 'pwa-512.png', PUBLIC);
+  await png(180, 'apple-touch-icon.png', PUBLIC);
+  await png(32, 'favicon-32.png', PUBLIC);
+  await png(16, 'favicon-16.png', PUBLIC);
+
+  // maskable: контент внутри безопасной зоны 80%
+  const inner = await sharp(src, { density: 384 }).resize(400, 400).png().toBuffer();
+  const maskable = join(PUBLIC, 'pwa-512-maskable.png');
+  await sharp({ create: { width: 512, height: 512, channels: 4, background: BG } })
+    .composite([{ input: inner }])
+    .png()
+    .toFile(maskable);
+  made.push(maskable);
+
+  // Electron / Windows
+  await png(256, 'icon.png', BUILD);
+  const icoSizes = [16, 32, 48, 64, 128, 256];
+  const buffers = [];
+  for (const size of icoSizes) {
+    buffers.push(await sharp(src, { density: 384 }).resize(size, size).png().toBuffer());
+  }
+  const icoPath = join(BUILD, 'icon.ico');
+  writeFileSync(icoPath, await pngToIco(buffers));
+  made.push(icoPath);
+
+  console.log('\nИконки готовы:\n');
+  for (const file of made) {
+    const kb = (statSync(file).size / 1024).toFixed(1);
+    console.log(`  ${file.replace(ROOT + '\\', '').replace(ROOT + '/', '')}  —  ${kb} КБ`);
+  }
+  console.log('\nДальше: npm run build && npm run preview — появится кнопка «Установить».\n');
+} catch (err) {
+  console.error('Ошибка генерации иконок:', err.message);
+  process.exit(1);
+}
