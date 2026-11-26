@@ -1,0 +1,613 @@
+/* ===== Сцена ===== */
+.rc-root {
+  --accent: #38bdf8;
+  --accent2: #a78bfa;
+  --hot: #ff4d6d;
+  --warn: #ffb74d;
+  --ok: #34d399;
+  --bg: #0b1026;
+  --bg-top: #050816;
+  --text: #e9eefc;
+  --dim: #94a1bf;
+  --surface: rgba(9, 13, 26, 0.8);
+  --line: rgba(255, 255, 255, 0.1);
+
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  touch-action: none;
+  user-select: none;
+}
+
+.rc-canvas { display: block; width: 100%; height: 100%; }
+.rc-root--chase .rc-canvas { cursor: none; }
+.rc-root--build .rc-canvas { cursor: crosshair; }
+
+.rc-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+  font-size: 15px;
+  color: var(--warn);
+  background: var(--bg-top);
+}
+
+/* ===== Верхняя панель ===== */
+.rc-top {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 18px;
+  background: linear-gradient(180deg, rgba(4, 6, 16, 0.92), rgba(4, 6, 16, 0));
+  animation: rc-drop 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.rc-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.rc-logo { font-size: 26px; filter: drop-shadow(0 0 12px var(--accent)); }
+.rc-brand-text { min-width: 0; }
+
+.rc-brand h1 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.rc-brand p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rc-modes {
+  display: flex;
+  gap: 5px;
+  padding: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  flex-shrink: 0;
+}
+
+.rc-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--dim);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.12s;
+}
+
+.rc-mode-btn span { font-size: 15px; }
+.rc-mode-btn:hover { color: var(--text); background: rgba(255, 255, 255, 0.07); }
+
+.rc-mode-btn.on {
+  color: #05070f;
+  background: linear-gradient(120deg, var(--accent), var(--accent2));
+  box-shadow: 0 4px 18px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.rc-mode-btn:active { transform: scale(0.96); }
+
+.rc-top-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+.rc-fps {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--dim);
+  letter-spacing: 0.5px;
+}
+
+.rc-chip {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.rc-chip--empty {
+  color: var(--warn);
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 14%, transparent);
+}
+
+.rc-sound {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.rc-sound:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* ===== Панель управления ===== */
+.rc-panel {
+  position: absolute;
+  top: 82px; right: 16px; bottom: 16px;
+  z-index: 10;
+  width: 302px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+  overflow-y: auto;
+  touch-action: pan-y;
+  animation: rc-rise 0.55s cubic-bezier(0.2, 0.8, 0.3, 1) 0.08s both;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) rgba(255, 255, 255, 0.06);
+}
+
+.rc-panel::-webkit-scrollbar { width: 9px; }
+.rc-panel::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 9px; }
+.rc-panel::-webkit-scrollbar-thumb {
+  border-radius: 9px;
+  background: linear-gradient(180deg, var(--accent), var(--accent2));
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.rc-panel::-webkit-scrollbar-thumb:hover { filter: brightness(1.25); }
+
+.rc-section { display: flex; flex-direction: column; gap: 12px; }
+
+.rc-section-title {
+  margin-top: 4px;
+  font-size: 10.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--dim);
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.rc-note {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--dim);
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border-left: 2px solid var(--accent);
+}
+
+/* Статистика */
+.rc-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+.rc-stat {
+  padding: 9px 4px;
+  border-radius: 11px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.rc-stat b {
+  display: block;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+.rc-stat span {
+  font-size: 9.5px;
+  letter-spacing: 0.5px;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+.rc-substat {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--dim);
+}
+
+.rc-substat b { color: var(--text); font-variant-numeric: tabular-nums; }
+
+/* Индикатор топлива */
+.rc-fuel {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.rc-fuel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 7px;
+  font-size: 11.5px;
+  color: var(--dim);
+}
+
+.rc-fuel-head b { font-size: 13px; color: var(--text); font-variant-numeric: tabular-nums; }
+
+.rc-fuel-bar {
+  height: 8px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.rc-fuel-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--ok), var(--accent));
+  transition: width 0.16s linear;
+}
+
+.rc-fuel-fill.mid { background: linear-gradient(90deg, var(--warn), var(--accent2)); }
+
+.rc-fuel-fill.low {
+  background: linear-gradient(90deg, var(--hot), var(--warn));
+  animation: rc-blink 0.6s steps(2, end) infinite;
+}
+
+/* Сегменты инструментов */
+.rc-seg {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 4px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.rc-seg button {
+  padding: 9px 2px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--dim);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, transform 0.1s;
+}
+
+.rc-seg button:hover { color: var(--text); background: rgba(255, 255, 255, 0.07); }
+
+.rc-seg button.on {
+  color: #05070f;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  box-shadow: 0 3px 14px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.rc-seg button:active { transform: scale(0.96); }
+
+/* Слайдеры */
+.rc-ctl { display: block; }
+
+.rc-ctl-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+  font-size: 12.5px;
+  color: var(--dim);
+}
+
+.rc-ctl-head b { font-size: 12.5px; color: var(--text); font-variant-numeric: tabular-nums; }
+
+.rc-ctl input[type='range'] {
+  --pct: 50%;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+  background:
+    linear-gradient(90deg, var(--accent), var(--accent2)) 0 / var(--pct) 100% no-repeat,
+    rgba(255, 255, 255, 0.12);
+}
+
+.rc-ctl input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 70%, transparent);
+  transition: transform 0.15s;
+}
+
+.rc-ctl input[type='range']::-webkit-slider-thumb:hover { transform: scale(1.22); }
+
+.rc-ctl input[type='range']::-moz-range-thumb {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--accent);
+}
+
+.rc-ctl input[type='range']:focus-visible { box-shadow: 0 0 0 2px var(--accent2); }
+
+/* Переключатели */
+.rc-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 3px 0;
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.rc-toggle-track {
+  position: relative;
+  width: 38px; height: 20px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  transition: background 0.2s;
+}
+
+.rc-toggle-knob {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+}
+
+.rc-toggle.on { color: var(--text); }
+.rc-toggle.on .rc-toggle-track {
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.rc-toggle.on .rc-toggle-knob { transform: translateX(18px); }
+
+/* Селект */
+.rc-select-wrap { position: relative; }
+
+.rc-select-wrap::after {
+  content: '▾';
+  position: absolute;
+  right: 12px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+  pointer-events: none;
+}
+
+.rc-select {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 10px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.rc-select:focus { outline: none; border-color: var(--accent); }
+.rc-select option { background: #0b1026; color: var(--text); }
+
+/* Кнопки */
+.rc-actions { display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 6px; }
+
+.rc-btn-primary {
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  color: #05070f;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.1s;
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.rc-btn-primary:hover { filter: brightness(1.12); }
+.rc-btn-primary:active { transform: scale(0.97); }
+
+.rc-actions-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.rc-actions-row.two { grid-template-columns: repeat(2, 1fr); }
+
+.rc-btn-ghost {
+  padding: 9px 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+}
+
+.rc-btn-ghost:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.rc-btn-ghost:active { transform: scale(0.96); }
+
+/* Подсказка */
+.rc-hint {
+  position: absolute;
+  left: 18px; bottom: 14px;
+  z-index: 5;
+  max-width: calc(100vw - 360px);
+  font-size: 12px;
+  color: var(--dim);
+  pointer-events: none;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.9);
+}
+
+.rc-hint b { color: var(--accent); font-weight: 600; }
+
+.rc-hint kbd {
+  padding: 1px 6px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  font-family: inherit;
+  font-size: 11px;
+  color: var(--text);
+}
+
+/* Тост */
+.rc-toast {
+  position: absolute;
+  left: 18px; bottom: 44px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(420px, calc(100vw - 360px));
+  padding: 11px 12px 11px 15px;
+  border-radius: 13px;
+  background: rgba(8, 11, 22, 0.92);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: rc-toast-in 0.28s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.rc-toast-text { font-size: 12.5px; color: var(--text); }
+
+.rc-toast-action {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 9px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  color: #05070f;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.rc-toast-close {
+  border: none;
+  background: none;
+  color: var(--dim);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.rc-toast-close:hover { color: var(--text); }
+
+/* Анимации */
+@keyframes rc-drop {
+  from { opacity: 0; transform: translateY(-14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes rc-rise {
+  from { opacity: 0; transform: translateX(22px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes rc-toast-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes rc-blink {
+  50% { opacity: 0.45; }
+}
+
+/* ===== Мобильная раскладка ===== */
+@media (max-width: 900px) {
+  .rc-brand-text p { display: none; }
+  .rc-hint { max-width: calc(100vw - 36px); }
+}
+
+@media (max-width: 760px) {
+  .rc-top { padding: 10px 12px; gap: 8px; }
+  .rc-brand-text { display: none; }
+  .rc-logo { font-size: 22px; }
+  .rc-mode-btn { padding: 8px 12px; font-size: 12px; }
+  .rc-fps, .rc-chip { display: none; }
+  .rc-sound-text { display: none; }
+  .rc-sound { padding: 8px 11px; }
+
+  .rc-panel {
+    top: auto; left: 12px; right: 12px; bottom: 12px;
+    width: auto;
+    max-height: 44vh;
+    padding: 13px;
+    border-radius: 16px;
+    animation-name: rc-toast-in;
+  }
+
+  .rc-hint { display: none; }
+
+  .rc-toast {
+    left: 12px; right: 12px;
+    bottom: auto; top: 68px;
+    max-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rc-top, .rc-panel, .rc-toast, .rc-fuel-fill.low { animation: none; }
+}
