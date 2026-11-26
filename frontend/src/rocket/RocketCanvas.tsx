@@ -20,10 +20,7 @@ function Slider(props: {
       </span>
       <input
         type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
+        min={min} max={max} step={step} value={value}
         style={{ '--pct': `${pct}%` } as React.CSSProperties}
         onChange={(e) => onChange(Number(e.target.value))}
       />
@@ -54,33 +51,29 @@ export const RocketCanvas: React.FC = () => {
   const [settings, setSettings] = useState<Settings>(DEFAULTS);
   const [hud, setHud] = useState<HudState>({
     targets: 0, flying: 0, wrecks: 0, hits: 0, collisions: 0, fps: 60, speed: 0, fuel: -1, fuelPct: 1,
+    fighterLoaded: 0, fighterTotal: 0,
   });
   const [toast, setToast] = useState<ToastRequest | null>(null);
   const [failed, setFailed] = useState(false);
 
   const settingsRef = useRef(settings);
-  settingsRef.current = settings;
+
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
-    if (!canvas.getContext('2d')) {
-      setFailed(true);
-      return;
-    }
+    if (!canvas.getContext('2d')) { setFailed(true); return; }
     const engine = new RocketEngine(canvas, container, setHud, (t) => setToast(t));
     engine.setSettings(settingsRef.current);
     engineRef.current = engine;
-    return () => {
-      engine.destroy();
-      engineRef.current = null;
-    };
+    return () => { engine.destroy(); engineRef.current = null; };
   }, []);
 
-  useEffect(() => {
-    engineRef.current?.setSettings(settings);
-  }, [settings]);
+  useEffect(() => { engineRef.current?.setSettings(settings); }, [settings]);
 
   useEffect(() => {
     if (!toast) return;
@@ -95,11 +88,11 @@ export const RocketCanvas: React.FC = () => {
   const switchMode = useCallback((mode: Mode) => {
     if (settingsRef.current.mode === mode) return;
     setSettings((s) => ({ ...s, mode }));
-    setToast({
-      text: mode === 'chase'
-        ? 'Погоня: топливо ограничено, следите за полоской над ракетой'
-        : 'Строитель: ставьте мишени и стены кликом',
-    });
+    const hints: Record<Mode, string> = {
+      chase: 'Погоня: топливо ограничено, следите за полоской над ракетой',
+      build: 'Цели / Постройки: ставьте мишени и стены кликом',
+    };
+    setToast({ text: hints[mode] });
   }, []);
 
   const selectTool = useCallback((tool: PlaceTool) => {
@@ -108,19 +101,29 @@ export const RocketCanvas: React.FC = () => {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement | null)?.tagName;
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName;
       if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+      if (target?.closest?.('button, [role="button"]')) return;
       const k = e.key.toLowerCase();
+      if (e.code === 'Space') e.preventDefault();
+      if (e.repeat) return;
       if (k === '1') selectTool('target');
       else if (k === '2') selectTool('wall');
       else if (k === '3') selectTool('erase');
-      else if (k === 'x') switchMode(settingsRef.current.mode === 'chase' ? 'build' : 'chase');
+      else if (k === 'x') {
+        const cur = settingsRef.current.mode;
+        switchMode(cur === 'chase' ? 'build' : 'chase');
+      }
       else if (k === 'c') engineRef.current?.clearObjects();
       else if (k === 'v') engineRef.current?.clearWrecks();
       else if (e.code === 'Space') {
-        e.preventDefault();
         engineRef.current?.unlockAudio();
-        engineRef.current?.launch();
+        if (settingsRef.current.mode === 'build' && settingsRef.current.fighterEnabled) {
+          engineRef.current?.fireSalvo();
+        } else {
+          engineRef.current?.launch();
+        }
       }
     };
     window.addEventListener('keydown', onKey);
@@ -187,6 +190,7 @@ export const RocketCanvas: React.FC = () => {
 
   const theme = THEMES[settings.theme];
   const isChase = settings.mode === 'chase';
+  const isFighter = settings.mode === 'build' && settings.fighterEnabled;
   const cssVars = {
     '--accent': theme.accent,
     '--accent2': theme.accent2,
@@ -224,7 +228,9 @@ export const RocketCanvas: React.FC = () => {
           <div className="rc-brand-text">
             <h1>ROCKET LAB</h1>
             <p>
-              {isChase
+              {isFighter
+                ? 'Клик по цели — захват · Space — залп · клик по пустому месту — постройка'
+                : isChase
                 ? 'Топливо кончается — корпус дрейфует по инерции и взрывается при таране'
                 : 'Клик ставит объект · ракеты стартуют из случайных точек'}
             </p>
@@ -242,11 +248,11 @@ export const RocketCanvas: React.FC = () => {
           </button>
           <button
             role="tab"
-            aria-selected={!isChase}
-            className={`rc-mode-btn ${!isChase ? 'on' : ''}`}
+            aria-selected={settings.mode === 'build'}
+            className={`rc-mode-btn ${settings.mode === 'build' ? 'on' : ''}`}
             onClick={() => switchMode('build')}
           >
-            <span>🧱</span> Строитель
+            <span>🧱</span> Цели / Постройки
           </button>
         </div>
 
@@ -264,15 +270,28 @@ export const RocketCanvas: React.FC = () => {
 
       <aside className="rc-panel" onPointerMove={stop} onPointerDown={stop}>
         <div className="rc-stats">
-          <div className="rc-stat">
-            <b>{isChase ? hud.hits : hud.targets}</b>
-            <span>{isChase ? 'перехватов' : 'целей'}</span>
-          </div>
-          <div className="rc-stat"><b>{hud.flying}</b><span>в полёте</span></div>
-          <div className="rc-stat">
-            <b>{isChase ? hud.wrecks : hud.hits}</b>
-            <span>{isChase ? 'обломков' : 'попаданий'}</span>
-          </div>
+          {isFighter ? (
+            <>
+              <div className="rc-stat">
+                <b>{hud.fighterLoaded}/{hud.fighterTotal}</b>
+                <span>на пилонах</span>
+              </div>
+              <div className="rc-stat"><b>{hud.flying}</b><span>в воздухе</span></div>
+              <div className="rc-stat"><b>{hud.hits}</b><span>попаданий</span></div>
+            </>
+          ) : (
+            <>
+              <div className="rc-stat">
+                <b>{isChase ? hud.hits : hud.targets}</b>
+                <span>{isChase ? 'перехватов' : 'целей'}</span>
+              </div>
+              <div className="rc-stat"><b>{hud.flying}</b><span>в полёте</span></div>
+              <div className="rc-stat">
+                <b>{isChase ? hud.wrecks : hud.hits}</b>
+                <span>{isChase ? 'обломков' : 'попаданий'}</span>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="rc-substat">
@@ -292,63 +311,150 @@ export const RocketCanvas: React.FC = () => {
           </div>
         )}
 
-        <div className="rc-section-title">
-          {isChase ? 'Погоня и топливо' : 'Инструменты стройки'}
-        </div>
-
-        {isChase ? (
-          <div className="rc-section">
-            <p className="rc-note">
-              Пока есть топливо — ракета доворачивает носом на курсор. Бак пуст: двигатель глохнет,
-              корпус летит по инерции и не реагирует на курсор, но детонирует при таране другой ракеты.
-            </p>
-            <Toggle label="Ограниченное топливо" value={settings.fuelOn} onChange={(v) => patch({ fuelOn: v })} />
-            <Slider label="Запас топлива" value={settings.fuel} min={1} max={20} step={0.5} unit=" с"
-              onChange={(v) => patch({ fuel: v })} />
-            <Slider label="Затухание в невесомости" value={settings.drag} min={0} max={1} step={0.05}
-              onChange={(v) => patch({ drag: v })} />
-            <Slider label="Жизнь обломка" value={settings.wreckLife} min={3} max={30} step={1} unit=" с"
-              onChange={(v) => patch({ wreckLife: v })} />
-            <Slider label="Пауза перед новым пуском" value={settings.respawnDelay} min={0.2} max={4} step={0.1} unit=" с"
-              onChange={(v) => patch({ respawnDelay: v })} />
-            <Toggle label="Полоски топлива над ракетой" value={settings.showFuel} onChange={(v) => patch({ showFuel: v })} />
-            <Toggle label="Прицел на курсоре" value={settings.reticle} onChange={(v) => patch({ reticle: v })} />
-            <button className="rc-btn-ghost" onClick={() => engineRef.current?.clearWrecks()}>
-              🧊 Убрать обломки
-            </button>
-          </div>
-        ) : (
-          <div className="rc-section">
-            <div className="rc-seg">
-              <button className={settings.tool === 'target' ? 'on' : ''} onClick={() => selectTool('target')}>
-                🎯 Мишень
-              </button>
-              <button className={settings.tool === 'wall' ? 'on' : ''} onClick={() => selectTool('wall')}>
-                🧱 Стена
-              </button>
-              <button className={settings.tool === 'erase' ? 'on' : ''} onClick={() => selectTool('erase')}>
-                🧽 Ластик
-              </button>
+        {/* === ИСТРЕБИТЕЛЬ: ТУМБЛЕР В РЕЖИМЕ ПОСТРОЙКИ === */}
+        {settings.mode === 'build' && (
+          <>
+            <div className="rc-section-title">Истребитель</div>
+            <div className="rc-section">
+              <Toggle
+                label="Истребитель"
+                value={settings.fighterEnabled}
+                onChange={(v) => patch({ fighterEnabled: v })}
+              />
+              <p className="rc-note">
+                {settings.fighterEnabled
+                  ? 'Истребитель в воздухе и управляет ракетами. Стройка и цели остаются доступны.'
+                  : 'Выключен: классический режим целей с авто-пуском ракет с краёв сцены.'}
+              </p>
             </div>
-            <Toggle
-              label="Стена вертикально" value={settings.wallVertical}
-              onChange={(v) => patch({ wallVertical: v })}
-            />
-            <Slider
-              label="Пауза между пусками" value={settings.launchDelay}
-              min={0.2} max={3} step={0.1} unit=" с"
-              onChange={(v) => patch({ launchDelay: v })}
-            />
-            <div className="rc-actions-row two">
-              <button className="rc-btn-ghost" onClick={() => engineRef.current?.scatter()}>🎲 Расставить</button>
-              <button className="rc-btn-ghost" onClick={() => engineRef.current?.clearObjects()}>🧹 Очистить</button>
-            </div>
-            <p className="rc-note">
-              Мишень — 1 попадание, стена — 3 и прикрывает цели за собой. В стройке бак бесконечный.
-            </p>
-          </div>
+          </>
         )}
 
+        {/* === ИСТРЕБИТЕЛЬ: УПРАВЛЕНИЕ === */}
+        {isFighter && (
+          <>
+            <div className="rc-section-title">Управление истребителем</div>
+            <div className="rc-section">
+              <p className="rc-note">
+                Клик по цели — захват. Клик по пустому месту — постройка выбранным инструментом. Space — огонь.
+              </p>
+              <button className="rc-btn-primary rc-btn--fire" onClick={() => engineRef.current?.fireSalvo()}>
+                🔥 ОГОНЬ (Space)
+              </button>
+              <div className="rc-actions-row two">
+                <button className="rc-btn-ghost" onClick={() => engineRef.current?.lockTarget(null)}>
+                  Сбросить цель
+                </button>
+                <button className="rc-btn-ghost" onClick={() => engineRef.current?.reloadAllHardpoints()}>
+                  Перезарядить
+                </button>
+              </div>
+              <Toggle label="Патрулирование (без курсора)" value={settings.autoPatrol}
+                onChange={(v) => patch({ autoPatrol: v })} />
+              <Toggle label="Рамка захвата цели" value={settings.showLock}
+                onChange={(v) => patch({ showLock: v })} />
+            </div>
+
+            <div className="rc-section-title">Залп</div>
+            <div className="rc-section">
+              <Slider label="Ракет в залпе" value={settings.salvoSize} min={1} max={6} step={1}
+                onChange={(v) => patch({ salvoSize: v })} />
+              <Slider label="Задержка между ракетами" value={settings.salvoDelay} min={0.05} max={0.4} step={0.05} unit=" с"
+                onChange={(v) => patch({ salvoDelay: v })} />
+            </div>
+
+            <div className="rc-section-title">Двухфазный пуск</div>
+            <div className="rc-section">
+              <Slider label="Задержка зажигания" value={settings.ignitionDelay} min={0.1} max={1} step={0.05} unit=" с"
+                onChange={(v) => patch({ ignitionDelay: v })} />
+              <Slider label="Импульс сброса" value={settings.ejectImpulse} min={20} max={200} step={10} unit=" px/с"
+                onChange={(v) => patch({ ejectImpulse: v })} />
+              <Slider label="Просадка при сбросе" value={settings.ejectDrop} min={0} max={300} step={10} unit=" px/с²"
+                onChange={(v) => patch({ ejectDrop: v })} />
+              <Slider label="Перезарядка пилона" value={settings.reloadTime} min={0.5} max={6} step={0.5} unit=" с"
+                onChange={(v) => patch({ reloadTime: v })} />
+            </div>
+
+            <div className="rc-section-title">Полёт истребителя</div>
+            <div className="rc-section">
+              <Slider label="Скорость" value={settings.fighterSpeed} min={60} max={400} step={10} unit=" px/с"
+                onChange={(v) => patch({ fighterSpeed: v })} />
+              <Slider label="Манёвренность" value={settings.fighterTurn} min={30} max={240} step={10} unit="°/с"
+                onChange={(v) => patch({ fighterTurn: v })} />
+              <Slider label="Размер" value={settings.fighterScale} min={0.6} max={1.6} step={0.05} unit="×"
+                onChange={(v) => patch({ fighterScale: v })} />
+            </div>
+          </>
+        )}
+
+        {/* === ПОГОНЯ === */}
+        {isChase && (
+          <>
+            <div className="rc-section-title">Погоня и топливо</div>
+            <div className="rc-section">
+              <p className="rc-note">
+                Пока есть топливо — ракета доворачивает носом на курсор. Бак пуст: двигатель глохнет,
+                корпус летит по инерции и не реагирует на курсор, но детонирует при таране другой ракеты.
+              </p>
+              <Toggle label="Ограниченное топливо" value={settings.fuelOn} onChange={(v) => patch({ fuelOn: v })} />
+              <Slider label="Запас топлива" value={settings.fuel} min={1} max={20} step={0.5} unit=" с"
+                onChange={(v) => patch({ fuel: v })} />
+              <Slider label="Затухание в невесомости" value={settings.drag} min={0} max={1} step={0.05}
+                onChange={(v) => patch({ drag: v })} />
+              <Slider label="Жизнь обломка" value={settings.wreckLife} min={3} max={30} step={1} unit=" с"
+                onChange={(v) => patch({ wreckLife: v })} />
+              <Slider label="Пауза перед новым пуском" value={settings.respawnDelay} min={0.2} max={4} step={0.1} unit=" с"
+                onChange={(v) => patch({ respawnDelay: v })} />
+              <Toggle label="Полоски топлива над ракетой" value={settings.showFuel} onChange={(v) => patch({ showFuel: v })} />
+              <Toggle label="Прицел на курсоре" value={settings.reticle} onChange={(v) => patch({ reticle: v })} />
+              <button className="rc-btn-ghost" onClick={() => engineRef.current?.clearWrecks()}>
+                🧊 Убрать обломки
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* === СТРОИТЕЛЬ === */}
+        {settings.mode === 'build' && (
+          <>
+            <div className="rc-section-title">Инструменты стройки</div>
+            <div className="rc-section">
+              <div className="rc-seg">
+                <button className={settings.tool === 'target' ? 'on' : ''} onClick={() => selectTool('target')}>
+                  🎯 Мишень
+                </button>
+                <button className={settings.tool === 'wall' ? 'on' : ''} onClick={() => selectTool('wall')}>
+                  🧱 Стена
+                </button>
+                <button className={settings.tool === 'erase' ? 'on' : ''} onClick={() => selectTool('erase')}>
+                  🧽 Ластик
+                </button>
+              </div>
+              <Toggle
+                label="Стена вертикально" value={settings.wallVertical}
+                onChange={(v) => patch({ wallVertical: v })}
+              />
+              {!isFighter && (
+                <Slider
+                  label="Пауза между пусками" value={settings.launchDelay}
+                  min={0.2} max={3} step={0.1} unit=" с"
+                  onChange={(v) => patch({ launchDelay: v })}
+                />
+              )}
+              <div className="rc-actions-row two">
+                <button className="rc-btn-ghost" onClick={() => engineRef.current?.scatter()}>🎲 Расставить</button>
+                <button className="rc-btn-ghost" onClick={() => engineRef.current?.clearObjects()}>🧹 Очистить</button>
+              </div>
+              <p className="rc-note">
+                {isFighter
+                  ? 'ЛКМ по блоку — захват цели, ЛКМ по пустому месту — постройка. ПКМ — удалить. Space — залп истребителя.'
+                  : 'Мишень — 1 попадание, стена — 3 и прикрывает цели за собой. В стройке бак бесконечный.'}
+              </p>
+            </div>
+          </>
+        )}
+
+        {/* === ОБЩИЕ: ПОЛЁТ === */}
         <div className="rc-section-title">Полёт</div>
         <div className="rc-section">
           <Slider label="Скорость ракеты" value={settings.speed} min={60} max={600} step={10} unit=" px/с"
@@ -359,11 +465,13 @@ export const RocketCanvas: React.FC = () => {
             onChange={(v) => patch({ maxRockets: v })} />
           <Toggle label="Ракеты взрываются друг о друга" value={settings.collisions}
             onChange={(v) => patch({ collisions: v })} />
-          <Toggle
-            label={isChase ? 'Авто-перезапуск' : 'Авто-пуск по целям'}
-            value={settings.auto}
-            onChange={(v) => patch({ auto: v })}
-          />
+          {!isFighter && (
+            <Toggle
+              label={isChase ? 'Авто-перезапуск' : 'Авто-пуск по целям'}
+              value={settings.auto}
+              onChange={(v) => patch({ auto: v })}
+            />
+          )}
           <Toggle label="Направляющая к цели" value={settings.guide} onChange={(v) => patch({ guide: v })} />
         </div>
 
@@ -395,8 +503,11 @@ export const RocketCanvas: React.FC = () => {
         </div>
 
         <div className="rc-actions">
-          <button className="rc-btn-primary" onClick={() => engineRef.current?.launch()}>
-            🚀 Запустить сейчас
+          <button className="rc-btn-primary" onClick={() => {
+            if (isFighter) engineRef.current?.fireSalvo();
+            else engineRef.current?.launch();
+          }}>
+            {isFighter ? '🔥 Залп' : '🚀 Запустить сейчас'}
           </button>
           <div className="rc-actions-row">
             <button className="rc-btn-ghost" onClick={resetAll}>Сброс</button>
@@ -407,7 +518,12 @@ export const RocketCanvas: React.FC = () => {
       </aside>
 
       <div className="rc-hint">
-        {isChase ? (
+        {isFighter ? (
+          <>
+            <b>ЛКМ по объекту</b> — захват · <b>ЛКМ по пустому</b> — постройка · <b>Space</b> — залп ·{' '}
+            <b>ПКМ</b> — удалить · <kbd>X</kbd> сменить режим
+          </>
+        ) : isChase ? (
           <>
             <b>Ведите курсор</b> — топливо тратится · <kbd>Space</kbd> пуск · <kbd>V</kbd> убрать обломки ·{' '}
             <kbd>X</kbd> режим «{MODE_LABEL.build}»

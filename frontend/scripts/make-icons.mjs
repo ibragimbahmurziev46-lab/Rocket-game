@@ -64,17 +64,16 @@ const SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width
     <circle cx="70" cy="270" r="2.5" opacity="0.4"/>
   </g>
 
-  <g transform="translate(256 256) rotate(-45) scale(6)">
-    <path d="M-29 0 L-74 -12 L-74 12 Z" fill="url(#flame)"/>
-    <path d="M-22 -6 L-29 -9 L-29 9 L-22 6 Z" fill="#37474f"/>
-    <path d="M-10 -8 L-22 -18 L-18 -8 Z" fill="#e53935"/>
-    <path d="M-10 8 L-22 18 L-18 8 Z" fill="#e53935"/>
-    <path d="M14 -8 L-18 -8 Q-23 -8 -23 0 Q-23 8 -18 8 L14 8 Z" fill="url(#body)"/>
-    <path d="M14 -8 Q26 -4 32 0 Q26 4 14 8 Z" fill="url(#nose)"/>
-    <rect x="11" y="-8" width="3" height="16" fill="#263238"/>
-    <circle cx="0" cy="0" r="5.2" fill="#37474f"/>
-    <circle cx="0" cy="0" r="3.8" fill="#38bdf8"/>
-    <circle cx="1.2" cy="-1.2" r="1.3" fill="#ffffff"/>
+  <g transform="translate(256 256) scale(6)">
+    <!-- сопло -->
+    <path d="M-5 24 L-7 29 L7 29 L5 24 Z" fill="#2b2e1c"/>
+    <!-- боковые плавники -->
+    <path d="M-7.5 11 L-7.5 26 L-16 26 L-7.5 17 Z" fill="#6f7448"/>
+    <path d="M7.5 11 L7.5 26 L16 26 L7.5 17 Z" fill="#6f7448"/>
+    <!-- корпус с оживальным носом -->
+    <path d="M0 -32 C-1.6 -24 -5 -16 -8.5 -9 L-8.5 24 L8.5 24 L8.5 -9 C5 -16 1.6 -24 0 -32 Z" fill="#6f7448"/>
+    <!-- кольцо-стык -->
+    <line x1="-8.5" y1="-9" x2="8.5" y2="-9" stroke="#2b2e1c" stroke-width="1.2"/>
   </g>
 </svg>
 `;

@@ -1,5 +1,6 @@
 /* Общие типы, палитры и математика проекта */
 
+
 export type Mode = 'chase' | 'build';
 export type PlaceTool = 'target' | 'wall' | 'erase';
 export type ObjKind = 'target' | 'wall';
@@ -25,25 +26,28 @@ export interface SceneObject {
   born: number;
 }
 
-export interface Rocket {
+
+
+// Новые типы для истребителя
+export interface Hardpoint {
   id: number;
-  x: number; y: number;
-  px: number; py: number;          // позиция прошлого кадра — для точных столкновений
-  angle: number; speed: number;
-  vx: number; vy: number;          // вектор скорости (инерция после выработки топлива)
-  targetId: number | null;
-  trailAcc: number;
-  life: number;
-  orphan: boolean;
-  fuel: number;                    // остаток топлива в секундах (Infinity — безлимит)
-  maxFuel: number;
-  powered: boolean;                // двигатель работает
-  drift: number;                   // сколько секунд корпус дрейфует
-  spin: number;                    // медленное вращение обломка
+  side: 'left' | 'right' | 'center';
+  offsetX: number;   // локально от центра истребителя
+  offsetY: number;
+  loaded: boolean;   // есть ли ракета на пилоне
+  reloading: number; // таймер перезарядки
 }
 
-export interface Boom { x: number; y: number; t: number; power: number }
-export interface Dust { x: number; y: number; r: number; s: number; ph: number }
+export interface Fighter {
+  x: number; y: number;
+  angle: number;       // курс (вдоль носа)
+  bank: number;        // крен (-1..1) для визуального наклона
+  speed: number;
+  target: { x: number; y: number } | null;
+  lockedId: number | null;
+  patrolAngle: number; // для патрулирования
+  hardpoints: Hardpoint[];
+}
 
 export interface Settings {
   mode: Mode;
@@ -70,7 +74,58 @@ export interface Settings {
   wreckLife: number;
   collisions: boolean;
   showFuel: boolean;
+
+  // истребитель
+  fighterEnabled: boolean;
+  fighterSpeed: number;
+  fighterTurn: number;
+  fighterScale: number;
+  salvoSize: number;
+  salvoDelay: number;
+  ignitionDelay: number;
+  ejectImpulse: number;
+  ejectDrop: number;
+  reloadTime: number;
+  autoPatrol: boolean;
+  showLock: boolean;
 }
+
+
+// В Rocket добавь поля для двухфазного пуска:
+export interface Rocket {
+  id: number;
+  x: number; y: number;
+  px: number; py: number;
+  angle: number; speed: number;
+  vx: number; vy: number;
+  targetId: number | null;
+  trailAcc: number;
+  life: number;
+  orphan: boolean;
+  fuel: number;
+  maxFuel: number;
+  powered: boolean;
+  drift: number;
+  spin: number;
+
+  // --- поля истребителя: ОБЯЗАТЕЛЬНО с "?" ---
+  ignitionTimer?: number;
+  ejectVx?: number;
+  ejectVy?: number;
+  hardpointId?: number | null;
+  aimX?: number;
+  aimY?: number;
+}
+
+// Константы
+export const FIGHTER_LENGTH = 72;
+export const FIGHTER_WING = 44;
+export const FIGHTER_ROCKET_FUEL = 8;
+
+
+export interface Boom { x: number; y: number; t: number; power: number }
+export interface Dust { x: number; y: number; r: number; s: number; ph: number }
+
 
 export interface Theme {
   label: string;
@@ -145,6 +200,28 @@ export const THEMES: Record<ThemeKey, Theme> = {
   },
 };
 
+/* Оливковый корпус ракеты: цилиндрическая светотень сверху вниз */
+export const MISSILE = {
+  live: {
+    shade: ['#3f4430', '#6d7454', '#9aa27c', '#7b8261', '#3a3e2c'],
+    fin: '#5c6146',
+    finEdge: '#8d9470',
+    seam: 'rgba(28,31,20,0.85)',
+    seamLight: 'rgba(196,202,164,0.22)',
+    nozzle: '#2f3327',
+    outline: 'rgba(18,20,13,0.55)',
+  },
+  dead: {
+    shade: ['#33362a', '#565b45', '#767c60', '#5f6449', '#2c2f23'],
+    fin: '#474b39',
+    finEdge: '#6a7053',
+    seam: 'rgba(24,26,18,0.85)',
+    seamLight: 'rgba(150,155,125,0.16)',
+    nozzle: '#262a20',
+    outline: 'rgba(14,16,11,0.55)',
+  },
+} as const;
+
 export const DEFAULTS: Settings = {
   mode: 'chase',
   speed: 240,
@@ -170,15 +247,31 @@ export const DEFAULTS: Settings = {
   wreckLife: 12,
   collisions: true,
   showFuel: true,
+  // истребитель
+  fighterEnabled: false,
+  fighterSpeed: 180,
+  fighterTurn: 90,
+  fighterScale: 1,
+  salvoSize: 2,
+  salvoDelay: 0.12,
+  ignitionDelay: 0.35,
+  ejectImpulse: 80,
+  ejectDrop: 140,
+  reloadTime: 2.5,
+  autoPatrol: true,
+  showLock: true,
 };
 
-export const MODE_LABEL: Record<Mode, string> = { chase: 'Погоня', build: 'Строитель' };
+export const MODE_LABEL: Record<Mode, string> = {
+  chase: 'Погоня',
+  build: 'Цели / Постройки',
+};
 
 export const TARGET_HP = 1;
 export const WALL_HP = 3;
-export const NOSE_LEN = 32;
-export const NOZZLE_LEN = 28;
-export const BODY_R = 15;
+export const NOSE_LEN = 56;      // кончик боевого обтекателя
+export const NOZZLE_LEN = 54;    // срез сопла
+export const BODY_R = 7;         // радиус корпуса
 export const MAX_PARTICLES = 1200;
 export const MAX_ROCKETS_HARD = 14;
 export const MAX_WRECKS = 10;
@@ -187,9 +280,11 @@ export const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a
 export const rand = (a: number, b: number) => a + Math.random() * (b - a);
 
 export const normAngle = (a: number) => {
-  let x = a;
-  while (x > Math.PI) x -= Math.PI * 2;
-  while (x < -Math.PI) x += Math.PI * 2;
+  if (!Number.isFinite(a)) return 0;
+  const TAU = Math.PI * 2;
+  let x = a % TAU;
+  if (x > Math.PI) x -= TAU;
+  else if (x < -Math.PI) x += TAU;
   return x;
 };
 
@@ -221,7 +316,7 @@ export const segRect = (
   return true;
 };
 
-/* Отрезок против круга с центром в начале координат (относительное движение двух ракет) */
+/* Отрезок против круга с центром в начале координат (относительное движение) */
 export const segCircle = (x1: number, y1: number, x2: number, y2: number, r: number) => {
   const dx = x2 - x1;
   const dy = y2 - y1;
@@ -230,4 +325,50 @@ export const segCircle = (x1: number, y1: number, x2: number, y2: number, r: num
   const cx = x1 + dx * t;
   const cy = y1 + dy * t;
   return cx * cx + cy * cy <= r * r;
+};
+
+/* Квадрат расстояния между двумя отрезками — точные столкновения длинных корпусов */
+export const segSegDist2 = (
+  p1x: number, p1y: number, q1x: number, q1y: number,
+  p2x: number, p2y: number, q2x: number, q2y: number,
+) => {
+  const d1x = q1x - p1x, d1y = q1y - p1y;
+  const d2x = q2x - p2x, d2y = q2y - p2y;
+  const rx = p1x - p2x, ry = p1y - p2y;
+  const a = d1x * d1x + d1y * d1y;
+  const e = d2x * d2x + d2y * d2y;
+  const f = d2x * rx + d2y * ry;
+  const EPS = 1e-8;
+  let s: number;
+  let t: number;
+
+  if (a <= EPS && e <= EPS) return rx * rx + ry * ry;
+
+  if (a <= EPS) {
+    s = 0;
+    t = clamp(f / e, 0, 1);
+  } else {
+    const c = d1x * rx + d1y * ry;
+    if (e <= EPS) {
+      t = 0;
+      s = clamp(-c / a, 0, 1);
+    } else {
+      const b = d1x * d2x + d1y * d2y;
+      const denom = a * e - b * b;
+      s = denom !== 0 ? clamp((b * f - c * e) / denom, 0, 1) : 0;
+      t = (b * s + f) / e;
+      if (t < 0) {
+        t = 0;
+        s = clamp(-c / a, 0, 1);
+      } else if (t > 1) {
+        t = 1;
+        s = clamp((b - c) / a, 0, 1);
+      }
+    }
+  }
+
+  const c1x = p1x + d1x * s, c1y = p1y + d1y * s;
+  const c2x = p2x + d2x * t, c2y = p2y + d2y * t;
+  const dx = c1x - c2x, dy = c1y - c2y;
+  return dx * dx + dy * dy;
 };

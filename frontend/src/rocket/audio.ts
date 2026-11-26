@@ -55,7 +55,7 @@ export class RocketAudio {
         this.engineSrc = src;
         this.appliedMuted = this.muted;
       }
-      if (this.ctx.state === 'suspended') void this.ctx.resume();
+      if (this.ctx.state === 'suspended') void this.ctx.resume().catch(() => { /* autoplay policy */ });
     } catch {
       /* звук не обязателен для работы сцены */
     }
@@ -66,17 +66,30 @@ export class RocketAudio {
     const ctx = this.ctx;
     const master = this.master;
     if (ctx && master && this.appliedMuted !== m) {
-      master.gain.setTargetAtTime(m ? 0 : 0.85, ctx.currentTime, 0.05);
-      this.appliedMuted = m;
+      try {
+        master.gain.setTargetAtTime(m ? 0 : 0.85, ctx.currentTime, 0.05);
+        this.appliedMuted = m;
+      } catch {
+        /* аудио-контекст мог быть уже закрыт */
+      }
     }
   }
 
   setEngine(level: number, pitch: number) {
     const ctx = this.ctx;
     if (!ctx || !this.engineGain || !this.engineFilter) return;
-    const t = ctx.currentTime;
-    this.engineGain.gain.setTargetAtTime(this.muted ? 0 : level, t, 0.1);
-    this.engineFilter.frequency.setTargetAtTime(pitch, t, 0.15);
+    // AudioParam.setTargetAtTime() кидает RangeError на NaN/Infinity,
+    // а loop() вызывает этот метод каждый кадр.
+    if (!Number.isFinite(level) || !Number.isFinite(pitch)) return;
+    try {
+      const t = ctx.currentTime;
+      const lv = Math.max(0, Math.min(1, level));
+      const freq = Math.max(20, Math.min(12000, pitch));
+      this.engineGain.gain.setTargetAtTime(this.muted ? 0 : lv, t, 0.1);
+      this.engineFilter.frequency.setTargetAtTime(freq, t, 0.15);
+    } catch {
+      /* noop */
+    }
   }
 
   boom(power: number) {
@@ -186,6 +199,7 @@ export class RocketAudio {
     const ctx = this.ctx;
     const master = this.master;
     if (!ctx || !master || this.muted) return;
+    if (!Number.isFinite(freq) || freq <= 0) return;
     try {
       const t = ctx.currentTime;
       const osc = ctx.createOscillator();
